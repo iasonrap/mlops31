@@ -1,7 +1,7 @@
 from pathlib import Path
 import torch
 from torch.utils.data import TensorDataset
-from torchvision import transforms
+from torchvision.io import read_image
 import kagglehub
 import shutil
 from PIL import Image, ImageOps
@@ -56,36 +56,42 @@ def process_images(input_folder: Path, output_folder: Path, size=(128, 128), nor
 
                 # Apply random rotation
                 angle = random.randint(0, 360)
-                img_rotated = img_resized.rotate(angle, expand=True)
+                img_rotated = img.rotate(angle, expand=True)
 
                 # Normalize if required
                 if normalize:
                     img_normalized = ImageOps.autocontrast(img_rotated)
                 else:
                     img_normalized = img_rotated
+
+                # Resize the image
+                img_resized = img_normalized.resize(size, Image.Resampling.LANCZOS)
+
                 # Determine output path
                 relative_path = img_path.relative_to(input_folder)
                 output_path = output_folder / relative_path
                 output_path.parent.mkdir(parents=True, exist_ok=True)
 
                 # Save processed image
-                img_normalized.save(output_path)
+                img_resized.save(output_path, icc_profile=None)
                 #print(f"Processed and saved: {output_path}")
+
         except Exception as e:
             print(f"Error processing file {img_path}: {e}")
     print("Process completed.")
 
 def split_dataset(input_folder: Path, split_ratios=(0.8, 0.1, 0.1)):
     """
-    Split the dataset into train, test, and validation sets.
+    Split the dataset into train, test, and validation PyTorch Datasets.
 
     Args:
         input_folder (Path): Path to the folder containing images and subfolders.
         split_ratios (tuple): Ratios for splitting the dataset.
 
     Returns:
-        tuple: Train, test, and validation datasets as lists of image paths.
+        tuple: Train, test, and validation datasets as PyTorch TensorDatasets.
     """
+    
     all_image_paths = []
     for animal_subfolder in input_folder.iterdir():
         if animal_subfolder.is_dir():
@@ -100,14 +106,32 @@ def split_dataset(input_folder: Path, split_ratios=(0.8, 0.1, 0.1)):
     total = len(all_image_paths)
     train_count = floor(total * split_ratios[0])
     test_count = floor(total * split_ratios[1])
-    val_count = total - train_count - test_count  # Remaining for validation
+    val_count = floor(total * split_ratios[2])  # Remaining for validation
 
+    # print(train_count,"  ,  ",test_count,"  ,  ",val_count)
     # Split the image paths
     train_images = all_image_paths[:train_count]
-    test_images = all_image_paths[train_count:train_count + test_count]
-    val_images = all_image_paths[train_count + test_count:]
+    test_images = all_image_paths[train_count+1:train_count + test_count]
+    val_images = all_image_paths[val_count:]
 
-    return train_images, test_images, val_images
+    # Helper function to convert image paths to tensors
+    def paths_to_tensor_dataset(image_paths):
+        tensors = []
+        for img_path in image_paths:
+            img = read_image(str(img_path))
+            if img.size(0) == 1:
+                img = img.repeat(3, 1, 1)
+            tensors.append(img)
+        #tensors = [read_image(str(img_path)) for img_path in image_paths]
+        #print(tensors)
+        return TensorDataset(torch.stack(tensors)) if tensors else None
+
+    # Convert splits into PyTorch TensorDatasets
+    train_dataset = paths_to_tensor_dataset(train_images)
+    test_dataset = paths_to_tensor_dataset(test_images)
+    val_dataset = paths_to_tensor_dataset(val_images)
+
+    return train_dataset, test_dataset, val_dataset
 
 # Example usage
 dataset = "alessiocorrado99/animals10"
