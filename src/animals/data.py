@@ -7,6 +7,7 @@ import shutil
 from PIL import Image, ImageOps
 import random
 from math import floor
+import numpy as np
 
 def download(dataset: str) -> None:
     """Preprocess the raw data and save it to the output folder."""
@@ -25,7 +26,7 @@ def download(dataset: str) -> None:
 
     print(f"Folder moved from '{source_folder}' to '{destination_folder}'")
 
-def process_images(input_folder: Path, output_folder: Path, size=(128, 128), normalize=True):
+def process_images(input_folder: Path, output_folder: Path, size, normalize=True):
     """
     Process images by normalizing, resizing, and applying random rotation.
 
@@ -53,16 +54,16 @@ def process_images(input_folder: Path, output_folder: Path, size=(128, 128), nor
                     img = img.convert('RGB')
                 # Resize the image
                 img_resized = img.resize(size, Image.Resampling.LANCZOS)
-
-                # Apply random rotation
-                angle = random.randint(0, 360)
-                img_rotated = img.rotate(angle, expand=True)
-
+                
+                # # Apply random rotation
+                # angle = random.randint(0, 360)
+                # img_rotated = img.rotate(angle, expand=True)
+                
                 # Normalize if required
                 if normalize:
-                    img_normalized = ImageOps.autocontrast(img_rotated)
+                    img_normalized = ImageOps.autocontrast(img_resized)
                 else:
-                    img_normalized = img_rotated
+                    img_normalized = img_resized
 
                 # Resize the image
                 img_resized = img_normalized.resize(size, Image.Resampling.LANCZOS)
@@ -108,7 +109,6 @@ def split_dataset(input_folder: Path, split_ratios=(0.8, 0.1, 0.1)):
     test_count = floor(total * split_ratios[1])
     val_count = floor(total * split_ratios[2])  # Remaining for validation
 
-    # print(train_count,"  ,  ",test_count,"  ,  ",val_count)
     # Split the image paths
     train_images = all_image_paths[:train_count]
     test_images = all_image_paths[train_count+1:train_count + test_count]
@@ -133,16 +133,50 @@ def split_dataset(input_folder: Path, split_ratios=(0.8, 0.1, 0.1)):
 
     return train_dataset, test_dataset, val_dataset
 
+def calculate_mean_std(dataset):
+    """
+    Calculate the mean and standard deviation of a dataset.
+
+    Args:
+        dataset (TensorDataset): PyTorch dataset containing images.
+
+    Returns:
+        tuple: Mean and standard deviation for each channel (RGB).
+    """
+    pixel_sum = np.zeros(3)
+    pixel_sum_squared = np.zeros(3)
+    total_pixels = 0
+
+    for img_tensor in dataset.tensors[0]:  # Access the images tensor
+        # Convert image tensor to NumPy array and scale to [0, 1]
+        img = img_tensor.numpy() / 255.0
+
+        # Sum pixels across channels
+        pixel_sum += img.sum(axis=(1, 2))
+        pixel_sum_squared += (img ** 2).sum(axis=(1, 2))
+
+        # Count total pixels (height * width)
+        total_pixels += img.shape[1] * img.shape[2]
+
+    # Calculate mean and standard deviation
+    mean = pixel_sum / total_pixels
+    std = np.sqrt(pixel_sum_squared / total_pixels - mean ** 2)
+
+    return mean, std
+
 # Example usage
 dataset = "alessiocorrado99/animals10"
 download(dataset)
 
 input_folder = Path(str(Path.cwd())+"/data/raw/raw-img")  # Replace with your input folder path
 output_folder = Path(str(Path.cwd())+"/data/processed/proc")  # Replace with your output folder path
-process_images(input_folder, output_folder, size=(128, 128), normalize=True)
+process_images(input_folder, output_folder, size=(214, 214), normalize=True)
 
-train_paths, test_paths, val_paths = split_dataset(output_folder)
+train_dataset, test_dataset, val_dataset = split_dataset(output_folder)
 
-print(f"Train images: {len(train_paths)}")
-print(f"Test images: {len(test_paths)}")
-print(f"Validation images: {len(val_paths)}")
+# Compute mean and standard deviation for the training dataset
+mean, std = calculate_mean_std(train_dataset)
+
+print(f"Train images: {len(train_dataset)}")
+print(f"Test images: {len(test_dataset)}")
+print(f"Validation images: {len(val_dataset)}")
