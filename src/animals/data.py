@@ -1,183 +1,183 @@
 from pathlib import Path
-
-import typer
-from torch.utils.data import Dataset
-
+import torch
+from torch.utils.data import TensorDataset
+from torchvision.io import read_image
 import kagglehub
 import shutil
-
 from PIL import Image, ImageOps
 import random
-
 from math import floor
+import numpy as np
 
-class MyDataset(Dataset):
-    """My custom dataset."""
+def download(dataset: str) -> None:
+    """Preprocess the raw data and save it to the output folder."""
+    # Download latest version
+    path = kagglehub.dataset_download(dataset)
 
-    def __init__(self) -> None:
-        self.data_path = Path.cwd()
+    # Move filed from downloaded folder to data/raw
+    source_folder = Path(path+"/raw-img")
+    destination_folder = Path(str(Path.cwd())+"/data/raw/raw-img")
+    if destination_folder.is_dir():
+        shutil.rmtree(destination_folder)
+    shutil.move(str(source_folder), str(destination_folder))
 
-    def __len__(self) -> int:
-        """Return the length of the dataset."""
+    # Remove the downloaded folder
+    shutil.rmtree(source_folder.parent.parent.parent.parent)
 
-    def __getitem__(self, index: int):
-        """Return a given sample from the dataset."""
+    print(f"Folder moved from '{source_folder}' to '{destination_folder}'")
 
-    def preprocess(self) -> None:
-        """Preprocess the raw data and save it to the output folder."""
-        # Download latest version
-        path = kagglehub.dataset_download("alessiocorrado99/animals10")
+def process_images(input_folder: Path, output_folder: Path, size, normalize=True):
+    """
+    Process images by normalizing, resizing, and applying random rotation.
 
-        # Move filed from downloaded folder to data/raw
-        source_folder = Path(path+"/raw-img")
-        destination_folder = Path(str(Path.cwd())+"/data/raw/raw-img")
-        if destination_folder.is_dir():
-            shutil.rmtree(destination_folder)
-        shutil.move(str(source_folder), str(destination_folder))
-
-        # Remove the downloaded folder
-        shutil.rmtree(source_folder.parent.parent.parent.parent)
-
-        print(f"Folder moved from '{source_folder}' to '{destination_folder}'")
-
-        # def process_images(input_folder: Path, output_folder: Path, size=(128, 128), normalize=True):
-        #     """
-        #     Process images by normalizing, resizing, and applying random rotation.
-
-        #     Args:
-        #         input_folder (Path): Path to the folder containing images and subfolders.
-        #         output_folder (Path): Path to save processed images.
-        #         size (tuple): Desired size for resizing (width, height).
-        #         normalize (bool): Whether to normalize pixel values to [0, 1].
-        #     """
-        #     if not input_folder.exists():
-        #         raise FileNotFoundError(f"Input folder '{input_folder}' does not exist.")
-            
-        #     output_folder.mkdir(parents=True, exist_ok=True)
-        #     for img_path in input_folder.rglob("*.*"):  # Recursively iterate through files
-        #         if img_path.suffix.lower() not in [".jpg", ".jpeg", ".png", ".bmp", ".tiff"]:
-        #             continue  # Skip non-image files
+    Args:
+        input_folder (Path): Path to the folder containing images and subfolders.
+        output_folder (Path): Path to save processed images.
+        size (tuple): Desired size for resizing (width, height).
+        normalize (bool): Whether to normalize pixel values to [0, 1].
+    """
+    if not input_folder.exists():
+        raise FileNotFoundError(f"Input folder '{input_folder}' does not exist.")
+    
+    output_folder.mkdir(parents=True, exist_ok=True)
+    for img_path in input_folder.rglob("*.*"):  # Recursively iterate through files
+        if img_path.suffix.lower() not in [".jpg", ".jpeg", ".png", ".bmp", ".tiff"]:
+            continue  # Skip non-image files
+        
+        try:
+            # Open the image
+            with Image.open(img_path) as img:
+                # Convert RGBA AND CMYK to RGB
+                if img.mode == 'RGBA':
+                    img = img.convert('RGB')
+                elif img.mode == 'CMYK':
+                    img = img.convert('RGB')
+                # Resize the image
+                img_resized = img.resize(size, Image.Resampling.LANCZOS)
                 
-        #         try:
-        #             # Open the image
-        #             with Image.open(img_path) as img:
-        #                 # Resize the image
-        #                 img_resized = img.resize(size, Image.Resampling.LANCZOS)
-        #                 #img_resized = img.resize(size)
-        #                 # Apply random rotation
-        #                 angle = random.randint(0, 360)
-        #                 img_rotated = img_resized.rotate(angle, expand=True)
+                # # Apply random rotation
+                # angle = random.randint(0, 360)
+                # img_rotated = img.rotate(angle, expand=True)
+                
+                # Normalize if required
+                if normalize:
+                    img_normalized = ImageOps.autocontrast(img_resized)
+                else:
+                    img_normalized = img_resized
 
-        #                 # Normalize if required
-        #                 if normalize:
-        #                     img_normalized = ImageOps.autocontrast(img_rotated)
-        #                 else:
-        #                     img_normalized = img_rotated
-        #                 # Determine output path
-        #                 relative_path = img_path.relative_to(input_folder)
-        #                 output_path = output_folder / relative_path
-        #                 output_path.parent.mkdir(parents=True, exist_ok=True)
+                # Resize the image
+                img_resized = img_normalized.resize(size, Image.Resampling.LANCZOS)
 
-        #                 # Save processed image
-        #                 img_normalized.save(output_path)
-        #                 print(f"Processed and saved: {output_path}")
-        #         except Exception as e:
-        #             print(f"Error processing file {img_path}: {e}")
+                # Determine output path
+                relative_path = img_path.relative_to(input_folder)
+                output_path = output_folder / relative_path
+                output_path.parent.mkdir(parents=True, exist_ok=True)
 
-        # # Example usage
-        # input_folder = Path(str(Path.cwd())+"/data/raw/raw-img")  # Replace with your input folder path
-        # output_folder = Path(str(Path.cwd())+"/data/processed/proc")  # Replace with your output folder path
-        # process_images(input_folder, output_folder, size=(128, 128), normalize=True)
+                # Save processed image
+                img_resized.save(output_path, icc_profile=None)
+                #print(f"Processed and saved: {output_path}")
 
-        def process_and_split_images(input_folder: Path, output_folder: Path, size=(128, 128), normalize=True, split_ratios=(0.8, 0.1, 0.1)):
-            """
-            Process images by normalizing, resizing, applying random rotation, and split into train, test, and validation sets.
+        except Exception as e:
+            print(f"Error processing file {img_path}: {e}")
+    print("Process completed.")
 
-            Args:
-                input_folder (Path): Path to the folder containing images and subfolders.
-                output_folder (Path): Path to save processed images.
-                size (tuple): Desired size for resizing (width, height).
-                normalize (bool): Whether to normalize pixel values to [0, 1].
-                split_ratios (tuple): Ratios for splitting the dataset into train, test, and validation sets.
-            """
-            if not input_folder.exists():
-                raise FileNotFoundError(f"Input folder '{input_folder}' does not exist.")
+def split_dataset(input_folder: Path, split_ratios=(0.8, 0.1, 0.1)):
+    """
+    Split the dataset into train, test, and validation PyTorch Datasets.
 
-            # Prepare output subdirectories
-            train_dir = output_folder / "train"
-            test_dir = output_folder / "test"
-            val_dir = output_folder / "validation"
+    Args:
+        input_folder (Path): Path to the folder containing images and subfolders.
+        split_ratios (tuple): Ratios for splitting the dataset.
 
-            train_dir.mkdir(parents=True, exist_ok=True)
-            test_dir.mkdir(parents=True, exist_ok=True)
-            val_dir.mkdir(parents=True, exist_ok=True)
+    Returns:
+        tuple: Train, test, and validation datasets as PyTorch TensorDatasets.
+    """
+    
+    all_image_paths = []
+    for animal_subfolder in input_folder.iterdir():
+        if animal_subfolder.is_dir():
+            images = list(animal_subfolder.glob("*.*"))
+            images = [img for img in images if img.suffix.lower() in [".jpg", ".jpeg", ".png", ".bmp", ".tiff"]]
+            all_image_paths.extend(images)
 
-            for animal_subfolder in input_folder.iterdir():
-                if animal_subfolder.is_dir():
-                    # Gather all image paths in the subfolder
-                    images = list(animal_subfolder.glob("*.*"))
-                    images = [img for img in images if img.suffix.lower() in [".jpg", ".jpeg", ".png", ".bmp", ".tiff"]]
+    # Shuffle images for random distribution
+    random.shuffle(all_image_paths)
 
-                    # Shuffle images for random distribution
-                    random.shuffle(images)
+    # Calculate split sizes
+    total = len(all_image_paths)
+    train_count = floor(total * split_ratios[0])
+    test_count = floor(total * split_ratios[1])
+    val_count = floor(total * split_ratios[2])  # Remaining for validation
 
-                    # Calculate split sizes
-                    total = len(images)
-                    train_count = floor(total * split_ratios[0])
-                    test_count = floor(total * split_ratios[1])
-                    val_count = total - train_count - test_count  # Remaining for validation
+    # Split the image paths
+    train_images = all_image_paths[:train_count]
+    test_images = all_image_paths[train_count+1:train_count + test_count]
+    val_images = all_image_paths[val_count:]
 
-                    # Split the images
-                    train_images = images[:train_count]
-                    test_images = images[train_count:train_count + test_count]
-                    val_images = images[train_count + test_count:]
+    # Helper function to convert image paths to tensors
+    def paths_to_tensor_dataset(image_paths):
+        tensors = []
+        for img_path in image_paths:
+            img = read_image(str(img_path))
+            if img.size(0) == 1:
+                img = img.repeat(3, 1, 1)
+            tensors.append(img)
+        #tensors = [read_image(str(img_path)) for img_path in image_paths]
+        #print(tensors)
+        return TensorDataset(torch.stack(tensors)) if tensors else None
 
-                    splits = {
-                        "train": (train_images, train_dir),
-                        "test": (test_images, test_dir),
-                        "validation": (val_images, val_dir),
-                    }
+    # Convert splits into PyTorch TensorDatasets
+    train_dataset = paths_to_tensor_dataset(train_images)
+    test_dataset = paths_to_tensor_dataset(test_images)
+    val_dataset = paths_to_tensor_dataset(val_images)
 
-                    # Process and save images in respective folders
-                    for split_name, (split_images, split_dir) in splits.items():
-                        for img_path in split_images:
-                            try:
-                                with Image.open(img_path) as img:
-                                    # Resize the image
-                                    img_resized = img.resize(size, Image.Resampling.LANCZOS)
+    return train_dataset, test_dataset, val_dataset
 
-                                    # Apply random rotation
-                                    angle = random.randint(0, 360)
-                                    img_rotated = img_resized.rotate(angle, expand=True)
+def calculate_mean_std(dataset):
+    """
+    Calculate the mean and standard deviation of a dataset.
 
-                                    # Normalize if required
-                                    if normalize:
-                                        img_normalized = ImageOps.autocontrast(img_rotated)
-                                    else:
-                                        img_normalized = img_rotated
+    Args:
+        dataset (TensorDataset): PyTorch dataset containing images.
 
-                                    # Determine output path
-                                    relative_path = img_path.relative_to(input_folder)
-                                    output_path = split_dir / relative_path
-                                    output_path.parent.mkdir(parents=True, exist_ok=True)
+    Returns:
+        tuple: Mean and standard deviation for each channel (RGB).
+    """
+    pixel_sum = np.zeros(3)
+    pixel_sum_squared = np.zeros(3)
+    total_pixels = 0
 
-                                    # Save processed image
-                                    img_normalized.save(output_path)
-                                    print(f"[{split_name.upper()}] Processed and saved: {output_path}")
-                            except Exception as e:
-                                print(f"Error processing file {img_path}: {e}")
+    for img_tensor in dataset.tensors[0]:  # Access the images tensor
+        # Convert image tensor to NumPy array and scale to [0, 1]
+        img = img_tensor.numpy() / 255.0
 
-        # Example usage
-        input_folder = Path(str(Path.cwd()) + "/data/raw/raw-img")  # Replace with your input folder path
-        output_folder = Path(str(Path.cwd()) + "/data/processed/proc")  # Replace with your output folder path
-        process_and_split_images(input_folder, output_folder, size=(128, 128), normalize=True)
+        # Sum pixels across channels
+        pixel_sum += img.sum(axis=(1, 2))
+        pixel_sum_squared += (img ** 2).sum(axis=(1, 2))
 
+        # Count total pixels (height * width)
+        total_pixels += img.shape[1] * img.shape[2]
 
-def preprocess() -> None:
-    print("Preprocessing data...")
-    dataset = MyDataset()
-    dataset.preprocess()
+    # Calculate mean and standard deviation
+    mean = pixel_sum / total_pixels
+    std = np.sqrt(pixel_sum_squared / total_pixels - mean ** 2)
 
+    return mean, std
 
+# Example usage
 if __name__ == "__main__":
-    typer.run(preprocess)
+    dataset = "alessiocorrado99/animals10"
+    download(dataset)
+
+    input_folder = Path(str(Path.cwd())+"/data/raw/raw-img")
+    output_folder = Path(str(Path.cwd())+"/data/processed/proc")
+    process_images(input_folder, output_folder, size=(214, 214), normalize=True)
+
+    train_dataset, test_dataset, val_dataset = split_dataset(output_folder)
+
+    mean, std = calculate_mean_std(train_dataset)
+    print(f"Train images: {len(train_dataset)}")
+    print(f"Test images: {len(test_dataset)}")
+    print(f"Validation images: {len(val_dataset)}")
+    print(f"Training Dataset Mean: {mean}")
+    print(f"Training Dataset Std: {std}")
