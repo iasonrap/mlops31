@@ -47,6 +47,11 @@ def test(ctx: Context) -> None:
     ctx.run("coverage report -m", echo=True, pty=not WINDOWS)
 
 @task
+def data(ctx: Context) -> None:
+    """Process the data."""
+    ctx.run(f"python src/{PROJECT_NAME}/data.py", echo=True, pty=not WINDOWS)
+
+@task
 def docker_build(ctx: Context, progress: str = "plain") -> None:
     """Build docker images."""
     ctx.run(

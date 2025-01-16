@@ -3,7 +3,7 @@ import timm
 import torch.nn as nn
 
 class AnimalModel(nn.Module):
-    def __init__(self, num_classes):
+    def __init__(self, num_classes=10):
         """Initialize the model with the number of classes"""
         super(AnimalModel, self).__init__()
         self.model = timm.create_model('resnet18', pretrained=True)
@@ -12,7 +12,6 @@ class AnimalModel(nn.Module):
 
     def forward(self, x):
         return self.model(x)
-
 
 if __name__ == '__main__':
     model = AnimalModel()
