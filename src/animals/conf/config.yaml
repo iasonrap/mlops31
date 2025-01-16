@@ -1,10 +1,12 @@
 #config.yaml
 hyperparameters:
+  model_name: resnet18
   input_dim: 784
   hidden_dim: 400
   output_dim: 10
   batch_size: 100
   epochs: 20
+  num_classes: 10
   seed:
 
 optimizer:
