@@ -5,6 +5,7 @@ from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_sc
 import matplotlib.pyplot as plt
 import typer
 from dotenv import load_dotenv
+from data import split_dataset
 load_dotenv()
 
 torch.seed(42)
@@ -17,7 +18,7 @@ def train(lr: float = 1e-3, batch_size: int = 64, epochs: int = 10) -> None:
     model = AnimalModel().to(DEVICE)
 
     # Load the data
-    train_loader, val_loader, _ #TODO: Load the data
+    train_loader, _, val_loader = split_dataset("data/processed/proc")
 
     # Define the loss function and optimizer
     loss_fn = nn.CrossEntropyLoss()
