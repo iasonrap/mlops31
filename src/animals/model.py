@@ -16,7 +16,6 @@ class AnimalModel(nn.Module):
     def forward(self, x):
         return self.model(x)
 
-
 if __name__ == '__main__':
     model = AnimalModel()
     x = torch.randn(1, 3, 224, 224)
