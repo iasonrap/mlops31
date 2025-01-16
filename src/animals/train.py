@@ -4,8 +4,11 @@ from model import AnimalModel
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 import matplotlib.pyplot as plt
 import typer
+from dotenv import load_dotenv
+load_dotenv()
 
 torch.seed(42)
+
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def train(lr: float = 1e-3, batch_size: int = 64, epochs: int = 10) -> None:
