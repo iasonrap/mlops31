@@ -94,7 +94,7 @@ def train(lr: float = 1e-3, batch_size: int = 64, epochs: int = 10) -> None:
     axs[1].set_title('Accuracy')
     axs[1].legend()
 
-    plt.savefig("reports/figures/training_plot.png")
+    fig.savefig("reports/figures/training_plot.png")
 
 if __name__ == "main":
     typer.run(train)
