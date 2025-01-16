@@ -4,10 +4,10 @@ hyperparameters:
   input_dim: 784
   hidden_dim: 400
   output_dim: 10
-  batch_size: 100
-  epochs: 20
+  batch_size: 64
+  epochs: 10
   num_classes: 10
-  seed:
+  seed: 42
 
 optimizer:
   _target_: torch.optim.Adam

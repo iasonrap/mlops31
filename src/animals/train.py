@@ -1,3 +1,4 @@
+import hydra
 import torch
 import torch.nn as nn
 from model import AnimalModel
@@ -11,9 +12,10 @@ torch.seed(42)
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-def train(lr: float = 1e-3, batch_size: int = 64, epochs: int = 10) -> None:
+@hydra.main(config_name="conf/config.yaml")
+def train(cfg) -> None:
     """Train the model."""
-    print(f"Training the model with lr={lr}, batch_size={batch_size}, epochs={epochs}")
+    print(f"Training the model with lr={cfg.optimizer.lr}, batch_size={cfg.hyperparameters.batch_size}, epochs={cfg.hyperparameters.epochs}")
     model = AnimalModel().to(DEVICE)
 
     # Load the data
@@ -21,12 +23,12 @@ def train(lr: float = 1e-3, batch_size: int = 64, epochs: int = 10) -> None:
 
     # Define the loss function and optimizer
     loss_fn = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    optimizer = torch.optim.Adam(model.parameters(), lr=cfg.optimizer.lr)
 
     stats = {"train_loss": [], "train_acc": [], "val_loss": [], "val_acc": []}
 
     
-    for epoch in range(epochs):
+    for epoch in range(cfg.hyperparameters.epochs):
         model.train()
         preds, targets = [], []
 
@@ -66,7 +68,7 @@ def train(lr: float = 1e-3, batch_size: int = 64, epochs: int = 10) -> None:
                 val_preds.append(outputs.detach().cpu())
                 val_targets.append(labels.detach().cpu())
 
-        print(f"Epoch {epoch+1}/{epochs}, Train Loss: {loss.item()}, Train Acc: {acc}, Val Loss: {val_loss.item()}, Val Acc: {acc}")
+        print(f"Epoch {epoch+1}/{cfg.hyperparameters.epochs}, Train Loss: {loss.item()}, Train Acc: {acc}, Val Loss: {val_loss.item()}, Val Acc: {acc}")
 
         preds = torch.cat(preds, 0)
         targets = torch.cat(targets, 0)
