@@ -12,7 +12,7 @@ import numpy as np
 import os
 
 class AnimalsDataset(torch.utils.data.Dataset):
-    def __init__(self, image_paths, targets):
+    def __init__(self, image_paths, targets, transform=None):
         self.image_paths = image_paths
         self.targets = targets
 
@@ -21,7 +21,7 @@ class AnimalsDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, idx):
         image = read_image(self.image_paths[idx])
-        label = self.targets[idx]
+        label = torch.tensor(self.targets[idx])
         return image, label
 
 def calculate_mean_std(input_folder: Path, batch_size: int = 128) -> None:
@@ -50,7 +50,7 @@ def calculate_mean_std(input_folder: Path, batch_size: int = 128) -> None:
                     img = img.resize((224, 224), Image.Resampling.BILINEAR)
 
                     # Convert to NumPy array and then to PyTorch tensor
-                    img_array = np.array(img) / 255.0  # Normalize to [0, 1]
+                    img_array = np.array(img)
                     img_tensor = torch.tensor(img_array, dtype=torch.float32).permute(2, 0, 1)  # Channels first
                     batch.append(img_tensor)
             except Exception as e:
@@ -168,7 +168,6 @@ def split_dataset(input_folder: Path, split_ratios=(0.8, 0.1, 0.1)):
             images = [img for img in images if img.suffix.lower() in [".jpg", ".jpeg", ".png", ".bmp", ".tiff"]]
             all_image_paths.extend(images)
             all_targets.extend([animal_subfolder.name] * len(images))
-
 
     # Shuffle images for random distribution
     random.shuffle(all_image_paths)

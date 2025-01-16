@@ -6,9 +6,10 @@ import matplotlib.pyplot as plt
 import typer
 from dotenv import load_dotenv
 from data import split_dataset
+from pathlib import Path
 load_dotenv()
 
-torch.seed(42)
+torch.manual_seed(42)
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -18,7 +19,7 @@ def train(lr: float = 1e-3, batch_size: int = 64, epochs: int = 10) -> None:
     model = AnimalModel().to(DEVICE)
 
     # Load the data
-    train_loader, _, val_loader = split_dataset("data/processed/proc")
+    train_loader, _, val_loader = split_dataset(Path("data/processed/proc"))
 
     # Define the loss function and optimizer
     loss_fn = nn.CrossEntropyLoss()
@@ -54,7 +55,7 @@ def train(lr: float = 1e-3, batch_size: int = 64, epochs: int = 10) -> None:
         model.eval()
         val_preds, val_targets = [], []
         with torch.no_grad():
-            for i, (images, labels) in enumerate(val_loader):
+            for _, (images, labels) in enumerate(val_loader):
                 images, labels = images.to(DEVICE), labels.to(DEVICE)
                 outputs = model(images)
                 val_loss = loss_fn(outputs, labels)
@@ -97,7 +98,7 @@ def train(lr: float = 1e-3, batch_size: int = 64, epochs: int = 10) -> None:
 
     fig.savefig("reports/figures/training_plot.png")
 
-if __name__ == "main":
+if __name__ == "__main__":
     typer.run(train)
 
 

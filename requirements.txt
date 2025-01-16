@@ -135,3 +135,4 @@ wrapt==1.17.0
 timm
 python-dotenv
 typer
+scikit-learn
