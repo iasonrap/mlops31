@@ -15,13 +15,20 @@ class AnimalsDataset(torch.utils.data.Dataset):
     def __init__(self, image_paths, targets, transform=None):
         self.image_paths = image_paths
         self.targets = targets
+        self.transform = transform
 
     def __len__(self):
         return len(self.image_paths)
 
     def __getitem__(self, idx):
-        image = read_image(self.image_paths[idx])
-        label = torch.tensor(self.targets[idx])
+        image = Image.open(self.image_paths[idx])
+        image = image.convert("RGB")
+        if self.transform:
+            image = self.transform(image)
+        
+        label = torch.tensor(self.targets[idx], dtype=torch.long)  # Convert label to tensor
+        
+
         return image, label
 
 def calculate_mean_std(input_folder: Path, batch_size: int = 128) -> None:
@@ -50,7 +57,11 @@ def calculate_mean_std(input_folder: Path, batch_size: int = 128) -> None:
                     img = img.resize((224, 224), Image.Resampling.BILINEAR)
 
                     # Convert to NumPy array and then to PyTorch tensor
-                    img_array = np.array(img)
+                    img_array = np.array(img) 
+                    
+                    # Normalize to [0, 1]
+                    img_array = img_array / 255.0
+
                     img_tensor = torch.tensor(img_array, dtype=torch.float32).permute(2, 0, 1)  # Channels first
                     batch.append(img_tensor)
             except Exception as e:
@@ -71,7 +82,7 @@ def calculate_mean_std(input_folder: Path, batch_size: int = 128) -> None:
     # Calculate mean and standard deviation for each channel
     mean = running_sum / n_pixels
     std = torch.sqrt(running_square_sum / n_pixels - mean ** 2)
-
+    print(f"Mean: {mean}, Std: {std}")
     return mean, std
 
 
@@ -95,60 +106,7 @@ def download(dataset: str) -> None:
 
     print(f"Folder moved from '{source_folder}' to '{destination_folder}'")
 
-def process_images(input_folder: Path, output_folder: Path, size, normalize=True):
-    """
-    Process images by normalizing, resizing, and applying random rotation.
-
-    Args:
-        input_folder (Path): Path to the folder containing images and subfolders.
-        output_folder (Path): Path to save processed images.
-        size (tuple): Desired size for resizing (width, height).
-        normalize (bool): Whether to normalize pixel values to [0, 1].
-    """
-    if not input_folder.exists():
-        raise FileNotFoundError(f"Input folder '{input_folder}' does not exist.")
-    
-    if normalize==True:
-        mean, std = calculate_mean_std(input_folder)
-
-    output_folder.mkdir(parents=True, exist_ok=True)
-    transform_list = [T.Resize(size), T.ToTensor()]
-    if normalize:
-        transform_list.append(T.Normalize(mean=mean, std=std))
-
-    transform = T.Compose(transform_list)
-
-    for img_path in input_folder.rglob("*.*"):
-        if img_path.suffix.lower() not in [".jpg", ".jpeg", ".png", ".bmp", ".tiff"]:
-            continue  # Skip non-image files
-
-        try:
-            # Open the image
-            with Image.open(img_path) as img:
-                # Convert RGBA or CMYK to RGB
-                if img.mode != "RGB":
-                    img = img.convert('RGB')
-
-                # Apply transformations
-                img_tensor = transform(img)  # Transform to tensor and resize
-
-                # Convert tensor back to PIL image for saving
-                img_processed = T.ToPILImage()(img_tensor)
-
-                # Determine output path
-                relative_path = img_path.relative_to(input_folder)
-                output_path = output_folder / relative_path
-                output_path.parent.mkdir(parents=True, exist_ok=True)
-
-                # Save the processed image
-                img_processed.save(output_path, format="JPEG", icc_profile=None)
-                # print(f"Processed and saved: {output_path}")
-
-        except Exception as e:
-            print(f"Error processing file {img_path}: {e}")
-    print("Process completed.")
-
-def split_dataset(input_folder: Path, split_ratios=(0.8, 0.1, 0.1)):
+def split_dataset(input_folder: Path, split_ratios=(0.8, 0.1, 0.1), mean=None, std=None) -> tuple[AnimalsDataset, AnimalsDataset, AnimalsDataset]:
     """
     Split the dataset into train, test, and validation PyTorch Datasets.
 
@@ -169,8 +127,14 @@ def split_dataset(input_folder: Path, split_ratios=(0.8, 0.1, 0.1)):
             all_image_paths.extend(images)
             all_targets.extend([animal_subfolder.name] * len(images))
 
-    # Shuffle images for random distribution
-    random.shuffle(all_image_paths)
+    # Shuffle images and targets for random distribution
+
+    zipped = list(zip(all_image_paths, all_targets))
+    random.shuffle(zipped)
+    all_image_paths, all_targets = zip(*zipped)
+    
+
+    
 
     # Calculate split sizes
     total = len(all_image_paths)
@@ -183,9 +147,20 @@ def split_dataset(input_folder: Path, split_ratios=(0.8, 0.1, 0.1)):
     test_images, test_targets = all_image_paths[train_count:train_count + test_count], all_targets[train_count:train_count + test_count]
     val_images, val_targets = all_image_paths[train_count + test_count:], all_targets[train_count + test_count:]
 
-    train_dataset = AnimalsDataset(train_images, train_targets)
-    test_dataset = AnimalsDataset(test_images, test_targets)
-    val_dataset = AnimalsDataset(val_images, val_targets)
+    label_to_idx = {label: idx for idx, label in enumerate(sorted(set(all_targets)))}
+    train_targets = [label_to_idx[label] for label in train_targets]
+    test_targets = [label_to_idx[label] for label in test_targets]
+    val_targets = [label_to_idx[label] for label in val_targets]
+
+    if mean is None or std is None:
+        mean, std = calculate_mean_std(input_folder)
+    
+    transform_list = [T.Resize((224, 224)), T.ToTensor(), T.Normalize(mean=mean, std=std)]
+    transform = T.Compose(transform_list)
+
+    train_dataset = AnimalsDataset(train_images, train_targets, transform)
+    test_dataset = AnimalsDataset(test_images, test_targets, transform)
+    val_dataset = AnimalsDataset(val_images, val_targets, transform)
 
     return train_dataset, test_dataset, val_dataset
 
@@ -194,10 +169,8 @@ if __name__ == "__main__":
     download(dataset)
 
     input_folder = Path(str(Path.cwd())+"/data/raw/raw-img")
-    output_folder = Path(str(Path.cwd())+"/data/processed/proc")
-    process_images(input_folder, output_folder, size=(224, 224), normalize=True)
 
-    train_dataset, test_dataset, val_dataset = split_dataset(output_folder)
+    train_dataset, test_dataset, val_dataset = split_dataset(input_folder)
 
     print(f"Train images: {len(train_dataset)}")
     print(f"Test images: {len(test_dataset)}")

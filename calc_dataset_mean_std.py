@@ -5,7 +5,7 @@ from PIL import Image
 from math import floor
 import numpy as np
 
-def calculate(input_folder: Path, batch_size: int = 128) -> None:
+def preprocess(input_folder: Path, batch_size: int = 128) -> None:
     all_image_paths = []
     image_path_targets = []
     for animal_subfolder in input_folder.iterdir():
@@ -51,4 +51,4 @@ def calculate(input_folder: Path, batch_size: int = 128) -> None:
 if __name__ == "__main__":
     input_folder = Path("data/raw")
     output_folder = Path("data/processed")
-    calculate(input_folder, output_folder)
+    preprocess(input_folder, output_folder)
