@@ -165,18 +165,19 @@ def calculate_mean_std(dataset):
     return mean, std
 
 # Example usage
-dataset = "alessiocorrado99/animals10"
-download(dataset)
+if __name__ == "__main__":
+    dataset = "alessiocorrado99/animals10"
+    download(dataset)
 
-input_folder = Path(str(Path.cwd())+"/data/raw/raw-img")  # Replace with your input folder path
-output_folder = Path(str(Path.cwd())+"/data/processed/proc")  # Replace with your output folder path
-process_images(input_folder, output_folder, size=(214, 214), normalize=True)
+    input_folder = Path(str(Path.cwd())+"/data/raw/raw-img")
+    output_folder = Path(str(Path.cwd())+"/data/processed/proc")
+    process_images(input_folder, output_folder, size=(214, 214), normalize=True)
 
-train_dataset, test_dataset, val_dataset = split_dataset(output_folder)
+    train_dataset, test_dataset, val_dataset = split_dataset(output_folder)
 
-# Compute mean and standard deviation for the training dataset
-mean, std = calculate_mean_std(train_dataset)
-
-print(f"Train images: {len(train_dataset)}")
-print(f"Test images: {len(test_dataset)}")
-print(f"Validation images: {len(val_dataset)}")
+    mean, std = calculate_mean_std(train_dataset)
+    print(f"Train images: {len(train_dataset)}")
+    print(f"Test images: {len(test_dataset)}")
+    print(f"Validation images: {len(val_dataset)}")
+    print(f"Training Dataset Mean: {mean}")
+    print(f"Training Dataset Std: {std}")
