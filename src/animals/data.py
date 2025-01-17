@@ -1,6 +1,6 @@
 from pathlib import Path
 import torch
-from torch.utils.data import TensorDataset
+from sklearn.model_selection import train_test_split
 from torchvision.io import read_image
 import kagglehub
 import shutil
@@ -113,54 +113,50 @@ def split_dataset(input_folder: Path, split_ratios=(0.8, 0.1, 0.1), mean=None, s
     Args:
         input_folder (Path): Path to the folder containing images and subfolders.
         split_ratios (tuple): Ratios for splitting the dataset.
+        mean (torch.Tensor): Mean for normalization (RGB channels).
+        std (torch.Tensor): Std for normalization (RGB channels).
 
     Returns:
-        tuple: Train, test, and validation datasets as PyTorch TensorDatasets.
+        tuple: Train, test, and validation datasets as PyTorch Datasets.
     """
-    
+    # Collect image paths and labels
     all_image_paths = []
     all_targets = []
     for animal_subfolder in input_folder.iterdir():
         if animal_subfolder.is_dir():
-            images = list(animal_subfolder.glob("*.*"))
-            images = [img for img in images if img.suffix.lower() in [".jpg", ".jpeg", ".png", ".bmp", ".tiff"]]
+            images = [img for img in animal_subfolder.glob("*.*") 
+                      if img.suffix.lower() in [".jpg", ".jpeg", ".png", ".bmp", ".tiff"]]
             all_image_paths.extend(images)
             all_targets.extend([animal_subfolder.name] * len(images))
 
-    # Shuffle images and targets for random distribution
-
-    zipped = list(zip(all_image_paths, all_targets))
-    random.shuffle(zipped)
-    all_image_paths, all_targets = zip(*zipped)
-    
-
-    
-
-    # Calculate split sizes
-    total = len(all_image_paths)
-    train_count = floor(total * split_ratios[0])
-    test_count = floor(total * split_ratios[1])
-    #val_count = floor(total * split_ratios[2])  # Remaining for validation
-
-    # Split the image paths
-    train_images, train_targets = all_image_paths[:train_count], all_targets[:train_count]
-    test_images, test_targets = all_image_paths[train_count:train_count + test_count], all_targets[train_count:train_count + test_count]
-    val_images, val_targets = all_image_paths[train_count + test_count:], all_targets[train_count + test_count:]
-
+    # Map labels to indices
     label_to_idx = {label: idx for idx, label in enumerate(sorted(set(all_targets)))}
-    train_targets = [label_to_idx[label] for label in train_targets]
-    test_targets = [label_to_idx[label] for label in test_targets]
-    val_targets = [label_to_idx[label] for label in val_targets]
+    all_targets = [label_to_idx[label] for label in all_targets]
 
+    # Split data using train_test_split
+    train_ratio, val_ratio, test_ratio = split_ratios
+    train_images, temp_images, train_targets, temp_targets = train_test_split(
+        all_image_paths, all_targets, test_size=(1 - train_ratio), stratify=all_targets, random_state=42
+    )
+    val_images, test_images, val_targets, test_targets = train_test_split(
+        temp_images, temp_targets, test_size=test_ratio / (val_ratio + test_ratio), stratify=temp_targets, random_state=42
+    )
+
+    # Calculate mean and std if not provided
     if mean is None or std is None:
         mean, std = calculate_mean_std(input_folder)
-    
-    transform_list = [T.Resize((224, 224)), T.ToTensor(), T.Normalize(mean=mean, std=std)]
-    transform = T.Compose(transform_list)
 
+    # Define transformations
+    transform = T.Compose([
+        T.Resize((224, 224)),
+        T.ToTensor(),
+        T.Normalize(mean=mean, std=std),
+    ])
+
+    # Create datasets
     train_dataset = AnimalsDataset(train_images, train_targets, transform)
-    test_dataset = AnimalsDataset(test_images, test_targets, transform)
     val_dataset = AnimalsDataset(val_images, val_targets, transform)
+    test_dataset = AnimalsDataset(test_images, test_targets, transform)
 
     return train_dataset, test_dataset, val_dataset
 

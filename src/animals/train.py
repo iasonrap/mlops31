@@ -14,7 +14,7 @@ torch.manual_seed(42)
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-def train(lr: float = 1e-3, batch_size: int = 256, epochs: int = 10) -> None:
+def train(lr: float = 1e-3, batch_size: int = 64, epochs: int = 2) -> None:
     """Train the model."""
     print(f"Training the model with lr={lr}, batch_size={batch_size}, epochs={epochs}")
     model = AnimalModel().to(DEVICE)
