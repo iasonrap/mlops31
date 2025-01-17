@@ -5,19 +5,25 @@ from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_sc
 import matplotlib.pyplot as plt
 import typer
 from dotenv import load_dotenv
+from data import split_dataset
+from pathlib import Path
+import tqdm as tqdm
 load_dotenv()
 
-torch.seed(42)
+torch.manual_seed(42)
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-def train(lr: float = 1e-3, batch_size: int = 64, epochs: int = 10) -> None:
+def train(lr: float = 1e-3, batch_size: int = 64, epochs: int = 2) -> None:
     """Train the model."""
     print(f"Training the model with lr={lr}, batch_size={batch_size}, epochs={epochs}")
     model = AnimalModel().to(DEVICE)
 
     # Load the data
-    train_loader, val_loader, _ #TODO: Load the data
+    train_dataset, _, val_dataset = split_dataset(Path("data/raw/raw-img"), 
+                                                  mean=torch.tensor([0.5177, 0.5003, 0.4126]), std=torch.tensor([0.2659, 0.2610, 0.2785]))
+    train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
 
     # Define the loss function and optimizer
     loss_fn = nn.CrossEntropyLoss()
@@ -30,7 +36,7 @@ def train(lr: float = 1e-3, batch_size: int = 64, epochs: int = 10) -> None:
         model.train()
         preds, targets = [], []
 
-        for i, (images, labels) in enumerate(train_loader):
+        for i, (images, labels) in enumerate(train_dataloader):
             images, labels = images.to(DEVICE), labels.to(DEVICE)
             optimizer.zero_grad()
             outputs = model(images)
@@ -42,18 +48,20 @@ def train(lr: float = 1e-3, batch_size: int = 64, epochs: int = 10) -> None:
 
             stats['train_loss'].append(loss.item())
 
-            acc = (outputs.argmax(1) == labels).float().item()
+            acc = (outputs.argmax(1) == labels).float().mean().item()
             stats['train_acc'].append(acc)
 
             preds.append(outputs.detach().cpu())
             targets.append(labels.detach().cpu())
             
+            if i % 10 == 0:
+                print(f"Epoch {epoch+1}/{epochs}, Step {i}/{len(train_dataloader)}, Loss: {loss.item()}, Acc: {acc}")
 
         # Perform eval
         model.eval()
         val_preds, val_targets = [], []
         with torch.no_grad():
-            for i, (images, labels) in enumerate(val_loader):
+            for _, (images, labels) in enumerate(val_dataloader):
                 images, labels = images.to(DEVICE), labels.to(DEVICE)
                 outputs = model(images)
                 val_loss = loss_fn(outputs, labels)
@@ -96,7 +104,7 @@ def train(lr: float = 1e-3, batch_size: int = 64, epochs: int = 10) -> None:
 
     fig.savefig("reports/figures/training_plot.png")
 
-if __name__ == "main":
+if __name__ == "__main__":
     typer.run(train)
 
 
