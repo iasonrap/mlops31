@@ -2,6 +2,8 @@ docs/site/
 data/raw/
 data/processed/
 models/
+reports/
+wandb/
 
 # test cache
 manual_test/
