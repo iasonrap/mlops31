@@ -1,8 +1,6 @@
 from pathlib import Path
 import torch
-from torchvision.io import read_image
 from PIL import Image
-from math import floor
 import numpy as np
 
 def preprocess(input_folder: Path, batch_size: int = 128) -> None:
