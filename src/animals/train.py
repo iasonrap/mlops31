@@ -137,7 +137,7 @@ def train(lr: float = 1e-3, batch_size: int = 64, epochs: int = 2) -> None:
     # Save the figure
     fig.savefig("reports/figures/training_plot.png")
 
-    wandb.log({f"training_plot": wandb.Image(f"reports/figures/training_plot.png")})
+    wandb.log({"training_plot": wandb.Image("reports/figures/training_plot.png")})
 
 if __name__ == "__main__":
     typer.run(train)
