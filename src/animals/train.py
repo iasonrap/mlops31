@@ -37,12 +37,12 @@ def train(cfg) -> None:
     print(f"Training the model with lr={cfg.optimizer.lr}, batch_size={cfg.hyperparameters.batch_size}, epochs={cfg.hyperparameters.epochs}")
     model = AnimalModel(cfg.hyperparameters.model_name, cfg.hyperparameters.num_classes).to(DEVICE)
 
-    run = wandb.init(project=project, entity=entity, config={"lr": lr, "batch_size": batch_size, "epochs": epochs})
+    run = wandb.init(project=project, entity=entity, config={"lr": cfg.optimizer.lr, "batch_size": cfg.hyperparameters.batch_size, "epochs": cfg.hyperparameters.epochs})
     # Load the data
     train_dataset, _, val_dataset = split_dataset(Path("data/raw/raw-img/"), 
                                                   mean=torch.tensor([0.5177, 0.5003, 0.4126]), std=torch.tensor([0.2659, 0.2610, 0.2785]))
-    train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+    train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=cfg.hyperparameters.batch_size, shuffle=True)
+    val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=cfg.hyperparameters.batch_size, shuffle=False)
 
     # Define the loss function and optimizer
     loss_fn = nn.CrossEntropyLoss()
@@ -75,7 +75,7 @@ def train(cfg) -> None:
             wandb.log({"train_loss": loss.item(), "train_accuracy_batches": acc})
 
             if i % 10 == 0:
-                print(f"Epoch {epoch+1}/{epochs}, Step {i}/{len(train_dataloader)}, Loss: {loss.item()}, Acc: {acc}")
+                print(f"Epoch {epoch+1}/{cfg.hyperparameters.epochs}, Step {i}/{len(train_dataloader)}, Loss: {loss.item()}, Acc: {acc}")
 
         # Perform eval
         model.eval()
