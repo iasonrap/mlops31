@@ -8,15 +8,14 @@ import typer
 from dotenv import load_dotenv
 load_dotenv()
 
-torch.seed(42)
+torch.seed()
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-@hydra.main(config_name="conf/config.yaml")
 def train(cfg) -> None:
     """Train the model."""
     print(f"Training the model with lr={cfg.optimizer.lr}, batch_size={cfg.hyperparameters.batch_size}, epochs={cfg.hyperparameters.epochs}")
-    model = AnimalModel().to(DEVICE)
+    model = AnimalModel(cfg.hyperparameters.model_name, cfg.hyperparameters.num_classes).to(DEVICE)
 
     # Load the data
     train_loader, val_loader, _ #TODO: Load the data
@@ -27,7 +26,6 @@ def train(cfg) -> None:
 
     stats = {"train_loss": [], "train_acc": [], "val_loss": [], "val_acc": []}
 
-    
     for epoch in range(cfg.hyperparameters.epochs):
         model.train()
         preds, targets = [], []
@@ -98,11 +96,11 @@ def train(cfg) -> None:
 
     plt.savefig("reports/figures/training_plot.png")
 
-if __name__ == "main":
-    typer.run(train)
+@hydra.main(version_base="1.1", config_path="conf", config_name="config.yaml")
+def main(cfg):
+    typer.run(train(cfg))
 
 
-
-
-
-        
+if __name__ == '__main__':
+    main()    
+    

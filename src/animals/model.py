@@ -3,21 +3,25 @@ import torch
 import timm
 import torch.nn as nn
 
-@hydra.main(config_name="conf/config.yaml")
 class AnimalModel(nn.Module):
-    def __init__(self, cfg):
+    def __init__(self, model_name, num_classes):
         """Initialize the model with the number of classes"""
         super(AnimalModel, self).__init__()
-        self.model = timm.create_model(cfg.hyperparameters.model_name, pretrained=True)
+        self.model = timm.create_model(model_name, pretrained=True)
         in_features = self.model.fc.in_features
-        self.model.fc = nn.Linear(in_features, cfg.hyperparameters.num_classes)
-        print(cfg.hyperparameters.model_name)
+        self.model.fc = nn.Linear(in_features, num_classes)
 
     def forward(self, x):
         return self.model(x)
 
-if __name__ == '__main__':
-    model = AnimalModel()
+
+@hydra.main(version_base="1.1", config_path="conf", config_name="config.yaml")
+def main(cfg):
+    model = AnimalModel(cfg.hyperparameters.model_name, cfg.hyperparameters.num_classes)
     x = torch.randn(1, 3, 224, 224)
     y = model(x)
     print(y.shape)
+
+
+if __name__ == '__main__':
+    main()
