@@ -17,7 +17,7 @@ project = os.getenv("WANDB_PROJECT")
 
 torch.manual_seed(42)
 
-wandb.login()
+wandb.login(key=api_key)
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
