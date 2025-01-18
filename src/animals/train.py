@@ -1,3 +1,13 @@
+from pathlib import Path
+
+import os
+print("Current working directory:", os.getcwd())
+print("Contents of the directory:", os.listdir(os.getcwd()))
+
+data_dir = Path("data/raw/raw-img/")
+if not data_dir.exists():
+    raise FileNotFoundError(f"Directory {data_dir} does not exist.")
+
 import torch
 import torch.nn as nn
 from model import AnimalModel
@@ -6,7 +16,7 @@ import matplotlib.pyplot as plt
 import typer
 from dotenv import load_dotenv
 from data import split_dataset
-from pathlib import Path
+
 import tqdm as tqdm
 import wandb
 import os
@@ -28,7 +38,7 @@ def train(lr: float = 1e-3, batch_size: int = 64, epochs: int = 2) -> None:
 
     run = wandb.init(project=project, entity=entity, config={"lr": lr, "batch_size": batch_size, "epochs": epochs})
     # Load the data
-    train_dataset, _, val_dataset = split_dataset(Path("data/raw/raw-img"), 
+    train_dataset, _, val_dataset = split_dataset(Path("data/raw/raw-img/"), 
                                                   mean=torch.tensor([0.5177, 0.5003, 0.4126]), std=torch.tensor([0.2659, 0.2610, 0.2785]))
     train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False)

@@ -11,6 +11,7 @@ WORKDIR /app
 
 # Copy the necessary files into the container
 COPY dockerfiles/train.dockerfile /app/
+COPY data/ data/
 COPY src/ src/
 COPY requirements.txt requirements.txt
 COPY requirements_dev.txt requirements_dev.txt
