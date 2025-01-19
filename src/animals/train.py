@@ -11,7 +11,7 @@ if not data_dir.exists():
 import hydra
 import torch
 import torch.nn as nn
-from model import AnimalModel
+from animals.model import AnimalModel
 from sklearn.metrics import accuracy_score, f1_score
 import matplotlib.pyplot as plt
 import typer
@@ -148,6 +148,7 @@ def train(cfg) -> None:
     fig.savefig("reports/figures/training_plot.png")
 
     wandb.log({"training_plot": wandb.Image("reports/figures/training_plot.png")})
+
 
 @hydra.main(version_base="1.1", config_path="conf", config_name="config.yaml")
 def main(cfg):
