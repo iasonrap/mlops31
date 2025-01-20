@@ -8,9 +8,10 @@ data_dir = Path("data/raw/raw-img/")
 if not data_dir.exists():
     raise FileNotFoundError(f"Directory {data_dir} does not exist.")
 
+import hydra
 import torch
 import torch.nn as nn
-from model import AnimalModel
+from animals.model import AnimalModel
 from sklearn.metrics import accuracy_score, f1_score
 import matplotlib.pyplot as plt
 import typer
@@ -31,26 +32,25 @@ wandb.login(key=api_key)
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-def train(lr: float = 1e-3, batch_size: int = 64, epochs: int = 2) -> None:
+def train(cfg) -> None:
     """Train the model."""
-    print(f"Training the model with lr={lr}, batch_size={batch_size}, epochs={epochs}")
-    model = AnimalModel().to(DEVICE)
+    print(f"Training the model with lr={cfg.optimizer.lr}, batch_size={cfg.hyperparameters.batch_size}, epochs={cfg.hyperparameters.epochs}")
+    model = AnimalModel(cfg.hyperparameters.model_name, cfg.hyperparameters.num_classes).to(DEVICE)
 
-    run = wandb.init(project=project, entity=entity, config={"lr": lr, "batch_size": batch_size, "epochs": epochs})
+    run = wandb.init(project=project, entity=entity, config={"lr": cfg.optimizer.lr, "batch_size": cfg.hyperparameters.batch_size, "epochs": cfg.hyperparameters.epochs})
     # Load the data
     train_dataset, _, val_dataset = split_dataset(Path("data/raw/raw-img/"), 
                                                   mean=torch.tensor([0.5177, 0.5003, 0.4126]), std=torch.tensor([0.2659, 0.2610, 0.2785]))
-    train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+    train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=cfg.hyperparameters.batch_size, shuffle=True)
+    val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=cfg.hyperparameters.batch_size, shuffle=False)
 
     # Define the loss function and optimizer
     loss_fn = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    optimizer = torch.optim.Adam(model.parameters(), lr=cfg.optimizer.lr)
 
     stats = {"train_loss": [], "train_acc": [], "val_loss": [], "val_acc": []}
 
-    
-    for epoch in range(epochs):
+    for epoch in range(cfg.hyperparameters.epochs):
         model.train()
         preds, targets = [], []
 
@@ -75,7 +75,7 @@ def train(lr: float = 1e-3, batch_size: int = 64, epochs: int = 2) -> None:
             wandb.log({"train_loss": loss.item(), "train_accuracy_batches": acc})
 
             if i % 10 == 0:
-                print(f"Epoch {epoch+1}/{epochs}, Step {i}/{len(train_dataloader)}, Loss: {loss.item()}, Acc: {acc}")
+                print(f"Epoch {epoch+1}/{cfg.hyperparameters.epochs}, Step {i}/{len(train_dataloader)}, Loss: {loss.item()}, Acc: {acc}")
 
         # Perform eval
         model.eval()
@@ -95,7 +95,7 @@ def train(lr: float = 1e-3, batch_size: int = 64, epochs: int = 2) -> None:
                 val_targets.append(labels.detach().cpu())
 
                 wandb.log({"val_loss": val_loss.item(), "val_accuracy_epochs": val_acc})
-        print(f"Epoch {epoch+1}/{epochs}, Train Loss: {loss.item()}, Train Acc: {acc}, Val Loss: {val_loss.item()}, Val Acc: {val_acc}")
+        print(f"Epoch {epoch+1}/{cfg.hyperparameters.epochs}, Train Loss: {loss.item()}, Train Acc: {acc}, Val Loss: {val_loss.item()}, Val Acc: {val_acc}")
 
         preds = torch.cat(preds, 0)
         targets = torch.cat(targets, 0)
@@ -149,11 +149,12 @@ def train(lr: float = 1e-3, batch_size: int = 64, epochs: int = 2) -> None:
 
     wandb.log({"training_plot": wandb.Image("reports/figures/training_plot.png")})
 
-if __name__ == "__main__":
-    typer.run(train)
+
+@hydra.main(version_base="1.1", config_path="conf", config_name="config.yaml")
+def main(cfg):
+    typer.run(train(cfg))
 
 
-
-
-
-        
+if __name__ == '__main__':
+    main()    
+    
