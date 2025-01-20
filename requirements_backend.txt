@@ -7,3 +7,4 @@ fastapi
 uvicorn
 gsutil
 requests
+google-cloud-run
