@@ -1,9 +1,10 @@
-from animals.model import AnimalModel
+from src.animals.model import AnimalModel
 import hydra
+from pathlib import Path
 import torch
 
 
-@hydra.main(version_base="1.1", config_path="../src/animals/conf", config_name="config.yaml")
+@hydra.main(version_base="1.1", config_path=Path(str(Path.cwd().parent) + "/src/animals/conf"), config_name="config.yaml")
 def test_model_output_shape(cfg):
     """Test that the output shape matches the expected one for a batch of images"""
     model = AnimalModel(cfg.hyperparameters.model_name, cfg.hyperparameters.num_classes)
