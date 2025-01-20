@@ -33,8 +33,11 @@ def upload_blob(bucket_name, source_file_name, destination_blob_name):
     # The ID of your GCS object
     # destination_blob_name = "storage-object-name"
 
+    print("Authenticating...")
     storage_client = storage.Client()
+    print("Finding bucket...")
     bucket = storage_client.bucket(bucket_name)
+    print("Creating blob...")
     blob = bucket.blob(destination_blob_name)
 
     # Optional: set a generation-match precondition to avoid potential race conditions
@@ -43,7 +46,7 @@ def upload_blob(bucket_name, source_file_name, destination_blob_name):
     # object that does not yet exist, set the if_generation_match precondition to 0.
     # If the destination object already exists in your bucket, set instead a
     # generation-match precondition using its generation number.
-    generation_match_precondition = 0
+    generation_match_precondition = 1
 
     blob.upload_from_filename(source_file_name, if_generation_match=generation_match_precondition)
 
@@ -105,22 +108,36 @@ def train(cfg) -> None:
         # Perform eval
         model.eval()
         val_preds, val_targets = [], []
+        total_val_loss, total_val_acc = 0.0, 0.0  # Initialize accumulators
+        num_batches = 0  # To track the number of batches
+
         with torch.no_grad():
             for _, (images, labels) in enumerate(val_dataloader):
                 images, labels = images.to(DEVICE), labels.to(DEVICE)
                 outputs = model(images)
                 val_loss = loss_fn(outputs, labels)
 
-                stats['val_loss'].append(val_loss.item())
-
+                # Accumulate loss and accuracy
+                total_val_loss += val_loss.item()
                 val_acc = (outputs.argmax(1) == labels).float().mean().item()
-                stats['val_acc'].append(val_acc)
+                total_val_acc += val_acc
+                num_batches += 1
 
+                # Append predictions and targets for further analysis
                 val_preds.append(outputs.detach().cpu())
                 val_targets.append(labels.detach().cpu())
 
-                wandb.log({"val_loss": val_loss.item(), "val_accuracy_epochs": val_acc})
-        print(f"Epoch {epoch+1}/{cfg.hyperparameters.epochs}, Train Loss: {loss.item()}, Train Acc: {acc}, Val Loss: {val_loss.item()}, Val Acc: {val_acc}")
+            # Compute average loss and accuracy
+            avg_val_loss = total_val_loss / num_batches
+            avg_val_acc = total_val_acc / num_batches
+
+            # Log the average metrics to wandb
+            wandb.log({"val_loss": avg_val_loss, "val_accuracy_epochs": avg_val_acc})
+
+        print(
+            f"Epoch {epoch+1}/{cfg.hyperparameters.epochs}, Train Loss: {loss.item()}, Train Acc: {acc:.4f}, "
+            f"Val Loss: {avg_val_loss:.4f}, Val Acc: {avg_val_acc:.4f}"
+        )
 
         preds = torch.cat(preds, 0)
         targets = torch.cat(targets, 0)
