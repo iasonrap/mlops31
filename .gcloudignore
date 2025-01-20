@@ -1,0 +1,8 @@
+__pycache__
+.env
+/wandb
+.ruff_cache
+.dvc
+/configs
+/models
+/reports
