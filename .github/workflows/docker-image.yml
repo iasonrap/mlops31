@@ -17,4 +17,4 @@ jobs:
     - name: Build the Docker image
       run: docker build \
             --file dockerfiles/train.dockerfile \
-            --tag my-image-name:$(date +%s)
+            --tag my-image-name:$(date +%s) .
