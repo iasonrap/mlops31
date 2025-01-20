@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - joel
   pull_request:
     branches:
       - main
