@@ -37,7 +37,7 @@ jobs:
 
       - name: Check if coverage is available
         run: |
-          pip install coverage
+          pip install coverage pytest
           coverage --version
 
       - name: Run tests & coverage
