@@ -36,7 +36,9 @@ jobs:
           pip list
 
       - name: Check if coverage is available
-        run: coverage --version
+        run: |
+          pip install coverage
+          coverage --version
 
       - name: Run tests & coverage
         run: |
