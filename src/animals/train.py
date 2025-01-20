@@ -3,7 +3,7 @@ import os
 import hydra
 import torch
 import torch.nn as nn
-from animals.model import AnimalModel
+from model import AnimalModel
 from sklearn.metrics import accuracy_score, f1_score
 import matplotlib.pyplot as plt
 import typer
