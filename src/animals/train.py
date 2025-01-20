@@ -1,13 +1,5 @@
 from pathlib import Path
-
 import os
-print("Current working directory:", os.getcwd())
-print("Contents of the directory:", os.listdir(os.getcwd()))
-
-data_dir = Path("data/raw/raw-img/")
-if not data_dir.exists():
-    raise FileNotFoundError(f"Directory {data_dir} does not exist.")
-
 import hydra
 import torch
 import torch.nn as nn
@@ -17,14 +9,47 @@ import matplotlib.pyplot as plt
 import typer
 from dotenv import load_dotenv
 from data import split_dataset
-
-import tqdm as tqdm
+from google.cloud import storage
 import wandb
-import os
+
+print("Current working directory:", os.getcwd())
+print("Contents of the directory:", os.listdir(os.getcwd()))
+
+data_dir = Path("data/raw/raw-img/")
+if not data_dir.exists():
+    raise FileNotFoundError(f"Directory {data_dir} does not exist.")
+
 load_dotenv()
 api_key = os.getenv("WANDB_API_KEY")
 entity = os.getenv("WANDB_ENTITY")
 project = os.getenv("WANDB_PROJECT")
+
+def upload_blob(bucket_name, source_file_name, destination_blob_name):
+    """Uploads a file to the bucket."""
+    # The ID of your GCS bucket
+    # bucket_name = "your-bucket-name"
+    # The path to your file to upload
+    # source_file_name = "local/path/to/file"
+    # The ID of your GCS object
+    # destination_blob_name = "storage-object-name"
+
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(bucket_name)
+    blob = bucket.blob(destination_blob_name)
+
+    # Optional: set a generation-match precondition to avoid potential race conditions
+    # and data corruptions. The request to upload is aborted if the object's
+    # generation number does not match your precondition. For a destination
+    # object that does not yet exist, set the if_generation_match precondition to 0.
+    # If the destination object already exists in your bucket, set instead a
+    # generation-match precondition using its generation number.
+    generation_match_precondition = 0
+
+    blob.upload_from_filename(source_file_name, if_generation_match=generation_match_precondition)
+
+    print(
+        f"File {source_file_name} uploaded to {destination_blob_name}."
+    )
 
 torch.manual_seed(42)
 
@@ -111,6 +136,12 @@ def train(cfg) -> None:
 
     print("Saving model locally...")
     torch.save(model.state_dict(), "models/AnimalModel.pth")
+
+    print("Saving model to google cloud bucket...")
+    try:
+        upload_blob("31animals", "models/AnimalModel.pth", "models/AnimalModel.pth")
+    except:
+        print("Failed to upload model to google cloud bucket.")
 
     artifact = wandb.Artifact(
         name="animals_resnet_model",
