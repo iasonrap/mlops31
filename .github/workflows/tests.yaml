@@ -35,6 +35,8 @@ jobs:
           pip install -r requirements.txt
           pip list
 
+      - name: Check if coverage is available
+        run: coverage --version
 
       - name: Run tests & coverage
         run: |
