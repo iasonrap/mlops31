@@ -1,7 +1,11 @@
 from src.animals.data import AnimalsDataset, split_dataset
 from pathlib import Path
+from google.cloud import storage
+import requests
+import pytest
+import os
 
-
+@pytest.mark.skipif(not os.path.exists(f"{str(Path.cwd()) + "/data/raw/raw-img"}/train_images.pt"), reason="Data not found")
 def test_animals_dataset_initialization():
     image_paths = ["src/animals/data/raw/raw-img/cane/OIF-e2bexWrojgtQnAPPcUfOWQ.jpeg",
                    "src/animals/data/raw/raw-img/cane/OIP-__Yu1XH3iAC10OzGQFpC-AHaE8.jpeg"]
@@ -31,6 +35,7 @@ def test_calculate_mean_std():
     assert torch.all(std >= 0), "Standard deviation values should be non-negative"
 """
 
+@pytest.mark.skipif(not os.path.exists(f"{str(Path.cwd()) + "/data/raw/raw-img"}/train_images.pt"), reason="Data not found")
 def test_split_dataset():
     train_dataset, test_dataset, val_dataset = split_dataset(Path(str(Path.cwd()) + "/data/raw/raw-img"),
                                                              split_ratios=(0.8, 0.1, 0.1))
