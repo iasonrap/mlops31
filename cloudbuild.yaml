@@ -15,5 +15,18 @@ steps:
     'push',
     'europe-west1-docker.pkg.dev/$PROJECT_ID/animals-artifacts/animal_train_gpu'
   ]
+  - name: 'gcr.io/cloud-builders/gcloud'
+  id: 'Deploy to Cloud Run'
+  args: [
+    'run',
+    'deploy',
+    'animal-classify-app',
+    '--image',
+    'europe-west1-docker.pkg.dev/$PROJECT_ID/animals-artifacts/animals_classification',
+    '--region',
+    'europe-west1',
+    '--platform',
+    'managed',
+  ]
 options:
   logging: CLOUD_LOGGING_ONLY
