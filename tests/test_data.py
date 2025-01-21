@@ -1,7 +1,10 @@
-from src.animals.data import AnimalsDataset, split_dataset
+from src.animals.data import AnimalsDataset, split_dataset, calculate_mean_std
 from pathlib import Path
+import torch
+import pytest
+import os
 
-
+@pytest.mark.skipif(not os.path.exists(f"{str(Path.cwd()) + "/data/raw/raw-img"}/train_images.pt"), reason="Data not found")
 def test_animals_dataset_initialization():
     image_paths = ["src/animals/data/raw/raw-img/cane/OIF-e2bexWrojgtQnAPPcUfOWQ.jpeg",
                    "src/animals/data/raw/raw-img/cane/OIP-__Yu1XH3iAC10OzGQFpC-AHaE8.jpeg"]
@@ -11,7 +14,7 @@ def test_animals_dataset_initialization():
     assert dataset.image_paths == image_paths, "Image paths not set correctly"
     assert dataset.targets == targets, "Targets not set correctly"
 
-"""
+@pytest.mark.skipif(not os.path.exists(f"{str(Path.cwd()) + "/data/raw/raw-img"}/train_images.pt"), reason="Data not found")
 def test_calculate_mean_std():
 
     mean, std = calculate_mean_std(Path(str(Path.cwd()) + "/data/raw/raw-img"), batch_size=2)
@@ -29,15 +32,14 @@ def test_calculate_mean_std():
 
     # Assert standard deviation values are non-negative
     assert torch.all(std >= 0), "Standard deviation values should be non-negative"
-"""
 
+@pytest.mark.skipif(not os.path.exists(f"{str(Path.cwd()) + "/data/raw/raw-img"}/train_images.pt"), reason="Data not found")
 def test_split_dataset():
     train_dataset, test_dataset, val_dataset = split_dataset(Path(str(Path.cwd()) + "/data/raw/raw-img"),
                                                              split_ratios=(0.8, 0.1, 0.1))
     assert len(train_dataset) == 20943, f"Expected 20943 train images, got {len(train_dataset)}"
     assert len(test_dataset) == 2618, f"Expected 2618 test images, got {len(test_dataset)}"
     assert len(val_dataset) == 2618, f"Expected 2618 validation images, got {len(val_dataset)}"
-
 
 def main():
     test_animals_dataset_initialization()

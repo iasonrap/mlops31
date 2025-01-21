@@ -5,7 +5,7 @@ hyperparameters:
   hidden_dim: 400
   output_dim: 10
   batch_size: 64
-  epochs: 10
+  epochs: 5
   num_classes: 10
   seed: 42
 
