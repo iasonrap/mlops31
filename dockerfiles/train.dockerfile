@@ -23,4 +23,5 @@ RUN pip install -r requirements.txt --no-cache-dir --verbose
 RUN pip install . --no-deps --no-cache-dir --verbose
 
 # Set the entrypoint for the container
+#ENTRYPOINT ["python", "-m", "cProfile", "-s", "cumulative", "src/animals/train.py"]
 ENTRYPOINT ["python", "-u", "src/animals/train.py"]
