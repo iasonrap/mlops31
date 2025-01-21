@@ -4,6 +4,7 @@ data/processed/
 models/
 reports/
 wandb/
+outputs/
 
 # test cache
 manual_test/

@@ -1,6 +1,6 @@
 steps:
 - name: 'gcr.io/cloud-builders/docker'
-  id: 'Build container image'
+  id: 'Build container image for train.py'
   args: [
     'build',
     '.',
@@ -10,10 +10,39 @@ steps:
     'dockerfiles/train_gpu.dockerfile'
   ]
 - name: 'gcr.io/cloud-builders/docker'
-  id: 'Push container image'
+  id: 'Push container image for train.py'
   args: [
     'push',
     'europe-west1-docker.pkg.dev/$PROJECT_ID/animals-artifacts/animal_train_gpu'
   ]
+- name: 'gcr.io/cloud-builders/docker'
+  id: 'Build container image for api.py'
+  args: [
+    'build',
+    '.',
+    '-t',
+    'europe-west1-docker.pkg.dev/$PROJECT_ID/animals-artifacts/animals_classification_app',
+    '-f',
+    'dockerfiles/api.dockerfile'
+  ]
+- name: 'gcr.io/cloud-builders/docker'
+  id: 'Push container image for api.py'
+  args: [
+    'push',
+    'europe-west1-docker.pkg.dev/$PROJECT_ID/animals-artifacts/animals_classification_app'
+  ]
+- name: 'gcr.io/cloud-builders/gcloud'
+id: 'Deploy to Cloud Run'
+args: [
+  'run',
+  'deploy',
+  'animals-classify-app',
+  '--image',
+  'europe-west1-docker.pkg.dev/$PROJECT_ID/animals-artifacts/animals_classification_app',
+  '--region',
+  'europe-west1',
+  '--platform',
+  'managed',
+]
 options:
   logging: CLOUD_LOGGING_ONLY
