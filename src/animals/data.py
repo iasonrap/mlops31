@@ -8,6 +8,7 @@ import torchvision.transforms as T
 import numpy as np
 import os
 
+
 class AnimalsDataset(torch.utils.data.Dataset):
     def __init__(self, image_paths, targets, transform=None):
         self.image_paths = image_paths
@@ -22,11 +23,11 @@ class AnimalsDataset(torch.utils.data.Dataset):
         image = image.convert("RGB")
         if self.transform:
             image = self.transform(image)
-        
+
         label = torch.tensor(self.targets[idx], dtype=torch.long)  # Convert label to tensor
-        
 
         return image, label
+
 
 def calculate_mean_std(input_folder: Path, batch_size: int = 128) -> None:
     all_image_paths = []
@@ -54,8 +55,8 @@ def calculate_mean_std(input_folder: Path, batch_size: int = 128) -> None:
                     img = img.resize((224, 224), Image.Resampling.BILINEAR)
 
                     # Convert to NumPy array and then to PyTorch tensor
-                    img_array = np.array(img) 
-                    
+                    img_array = np.array(img)
+
                     # Normalize to [0, 1]
                     img_array = img_array / 255.0
 
@@ -92,8 +93,8 @@ def download(dataset: str) -> None:
     path = kagglehub.dataset_download(dataset)
 
     # Move filed from downloaded folder to data/raw
-    source_folder = Path(path+"/raw-img")
-    destination_folder = Path(str(Path.cwd())+"/data/raw/raw-img")
+    source_folder = Path(path + "/raw-img")
+    destination_folder = Path(str(Path.cwd()) + "/data/raw/raw-img")
     if destination_folder.is_dir():
         shutil.rmtree(destination_folder)
     shutil.move(str(source_folder), str(destination_folder))
@@ -103,7 +104,9 @@ def download(dataset: str) -> None:
 
     print(f"Folder moved from '{source_folder}' to '{destination_folder}'")
 
-def split_dataset(input_folder: Path, split_ratios=(0.8, 0.1, 0.1), mean=None, std=None) -> tuple[AnimalsDataset, AnimalsDataset, AnimalsDataset]:
+
+def split_dataset(input_folder: Path, split_ratios=(0.8, 0.1, 0.1), mean=None, std=None) -> tuple[
+    AnimalsDataset, AnimalsDataset, AnimalsDataset]:
     """
     Split the dataset into train, test, and validation PyTorch Datasets.
 
@@ -121,7 +124,7 @@ def split_dataset(input_folder: Path, split_ratios=(0.8, 0.1, 0.1), mean=None, s
     all_targets = []
     for animal_subfolder in input_folder.iterdir():
         if animal_subfolder.is_dir():
-            images = [img for img in animal_subfolder.glob("*.*") 
+            images = [img for img in animal_subfolder.glob("*.*")
                       if img.suffix.lower() in [".jpg", ".jpeg", ".png", ".bmp", ".tiff"]]
             all_image_paths.extend(images)
             all_targets.extend([animal_subfolder.name] * len(images))
@@ -136,7 +139,8 @@ def split_dataset(input_folder: Path, split_ratios=(0.8, 0.1, 0.1), mean=None, s
         all_image_paths, all_targets, test_size=(1 - train_ratio), stratify=all_targets, random_state=42
     )
     val_images, test_images, val_targets, test_targets = train_test_split(
-        temp_images, temp_targets, test_size=test_ratio / (val_ratio + test_ratio), stratify=temp_targets, random_state=42
+        temp_images, temp_targets, test_size=test_ratio / (val_ratio + test_ratio), stratify=temp_targets,
+        random_state=42
     )
 
     # Calculate mean and std if not provided
@@ -157,11 +161,12 @@ def split_dataset(input_folder: Path, split_ratios=(0.8, 0.1, 0.1), mean=None, s
 
     return train_dataset, test_dataset, val_dataset
 
+
 if __name__ == "__main__":
     dataset = "alessiocorrado99/animals10"
     download(dataset)
 
-    input_folder = Path(str(Path.cwd())+"/data/raw/raw-img")
+    input_folder = Path(str(Path.cwd()) + "/data/raw/raw-img")
 
     train_dataset, test_dataset, val_dataset = split_dataset(input_folder)
 
