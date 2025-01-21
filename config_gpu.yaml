@@ -5,4 +5,4 @@ workerPoolSpecs:
         acceleratorCount: 1
     replicaCount: 1
     containerSpec:
-        imageUri: 'europe-west1-docker.pkg.dev/mlops31/animals-artifacts/animal_train'
+        imageUri: 'europe-west1-docker.pkg.dev/mlops31/animals-artifacts/animal_train_gpu'

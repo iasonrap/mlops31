@@ -1,0 +1,10 @@
+google-cloud-storage
+python-multipart
+torch
+torchvision
+timm
+fastapi
+uvicorn
+gsutil
+requests
+google-cloud-run
