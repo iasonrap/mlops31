@@ -6,7 +6,6 @@ RUN apt update && \
     apt clean && rm -rf /var/lib/apt/lists/*
 
 COPY src src/
-COPY data/ data/
 COPY requirements_backend.txt requirements_backend.txt
 COPY README.md README.md
 COPY pyproject.toml pyproject.toml
