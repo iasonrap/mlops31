@@ -40,7 +40,7 @@ def main() -> None:
                        3: "butterfly",  4: "chicken", 5: "cat", 6: "cow", 7: "sheep", 8: "spider", 9: "squirrel"}
 
     st.title("Image Classification")
-    st.subheader(f"Classify images of following animals:")
+    st.subheader("Classify images of following animals:")
     st.write(f"- {', '.join(animals_classes.values())}")
 
     uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])

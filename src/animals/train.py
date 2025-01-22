@@ -157,8 +157,8 @@ def train(cfg) -> None:
     print("Saving model to google cloud bucket...")
     try:
         upload_blob("31animals", "models/AnimalModel.pth", "models/AnimalModel.pth")
-    except:
-        print("Failed to upload model to google cloud bucket.")
+    except Exception as e:
+        print("Failed to upload model to google cloud bucket. Error:", e)
 
     artifact = wandb.Artifact(
         name="animals_resnet_model",
