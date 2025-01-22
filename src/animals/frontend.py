@@ -64,8 +64,8 @@ def main() -> None:
             st.bar_chart(df, y="Probability")
 
             # If the probabilities seem unsure
-            if max(probabilities) < 0.5:
-                st.write("The may be a bit confused about this one...")
+            if max(probabilities) < 0.7:
+                st.write("The model may be a bit confused about this one...")
             else:
                 st.write("The model is confident!")
         else:
