@@ -8,3 +8,4 @@ uvicorn
 gsutil
 requests
 google-cloud-run
+hydra-core
