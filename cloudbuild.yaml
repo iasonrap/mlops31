@@ -15,3 +15,5 @@ steps:
     'push',
     'europe-west1-docker.pkg.dev/$PROJECT_ID/animals-artifacts/animal_train_gpu'
   ]
+options:
+  logging: CLOUD_LOGGING_ONLY
