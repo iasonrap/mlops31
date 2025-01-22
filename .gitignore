@@ -2,7 +2,7 @@ docs/site/
 data/raw/
 data/processed/
 models/
-reports/
+#reports/
 wandb/
 
 # test cache
