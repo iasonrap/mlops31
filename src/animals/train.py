@@ -33,22 +33,14 @@ def upload_blob(bucket_name, source_file_name, destination_blob_name):
     # The ID of your GCS object
     # destination_blob_name = "storage-object-name"
 
-    print("Authenticating...")
+    #print("Authenticating...")
     storage_client = storage.Client()
-    print("Finding bucket...")
+    #print("Finding bucket...")
     bucket = storage_client.bucket(bucket_name)
-    print("Creating blob...")
+    #print("Creating blob...")
     blob = bucket.blob(destination_blob_name)
-
-    # Optional: set a generation-match precondition to avoid potential race conditions
-    # and data corruptions. The request to upload is aborted if the object's
-    # generation number does not match your precondition. For a destination
-    # object that does not yet exist, set the if_generation_match precondition to 0.
-    # If the destination object already exists in your bucket, set instead a
-    # generation-match precondition using its generation number.
-    generation_match_precondition = 1
-
-    blob.upload_from_filename(source_file_name, if_generation_match=generation_match_precondition)
+    #print("Uploading file...")
+    blob.upload_from_filename(source_file_name)
 
     print(
         f"File {source_file_name} uploaded to {destination_blob_name}."
@@ -66,8 +58,9 @@ def train(cfg) -> None:
     model = AnimalModel(cfg.hyperparameters.model_name, cfg.hyperparameters.num_classes).to(DEVICE)
 
     run = wandb.init(project=project, entity=entity, config={"lr": cfg.optimizer.lr, "batch_size": cfg.hyperparameters.batch_size, "epochs": cfg.hyperparameters.epochs})
-    # Load the data
-    train_dataset, _, val_dataset = split_dataset(Path("data/raw/raw-img/"), 
+    # Set working dir
+    os.chdir(hydra.utils.get_original_cwd())
+    train_dataset, _, val_dataset = split_dataset(Path(hydra.utils.get_original_cwd() + "/data/raw/raw-img"), 
                                                   mean=torch.tensor([0.5177, 0.5003, 0.4126]), std=torch.tensor([0.2659, 0.2610, 0.2785]))
     train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=cfg.hyperparameters.batch_size, shuffle=True)
     val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=cfg.hyperparameters.batch_size, shuffle=False)
