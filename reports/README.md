@@ -325,8 +325,9 @@ s24084, s204150, s240154, s240076, s240056
 > *As seen in the second image we are also tracking ... and ...*
 >
 > Answer:
-
---- question 14 fill here ---
+![WANDB](wandb.png)
+![WANDB2](wandb2.png)
+WANDB was used to keep track whenever there would be changed to the model, to see how it would impact our validation accuracy and therefore model versioning as well to keep an optimal model and tracking what has already been tried to no waste more time in it. WANDB fortunately has a great visualization of the different validation accuracies but also a great insight into the resources used for each of the models.
 
 ### Question 15
 
@@ -341,7 +342,7 @@ s24084, s204150, s240154, s240076, s240056
 >
 > Answer:
 
---- question 15 fill here ---
+Docker was used as the preferred way to train our model and ensure anything that worked for someone would work for others. 
 
 ### Question 16
 
@@ -356,7 +357,8 @@ s24084, s204150, s240154, s240076, s240056
 >
 > Answer:
 
---- question 16 fill here ---
+The main way to debug, especially in code was to look at the error messages and narrow down the place the error took place. After that understanding what could have gone wrong, especially considering latest
+changes done by you or if a pull request was done, what that could have changed. We did do profiling for train.py and there was nothing major to fix besides the training takes too long for minimum improvements.
 
 ## Working in the cloud
 
@@ -559,7 +561,7 @@ s24084, s204150, s240154, s240076, s240056
 >
 > Answer:
 
---- question 30 fill here ---
+There were quite some issues with the requirements.txt, lots of libraries being used or added that were not used and having issues with versioning and the docker images related also to that.
 
 ### Question 31
 
@@ -578,3 +580,5 @@ s24084, s204150, s240154, s240076, s240056
 > Answer:
 
 --- question 31 fill here ---
+Student s240056 was in charge about buliding the docker image and therefore extended to make sure the requirements were always in line with the code. Also took the task to do some profiling in the code to ensure
+efficient code.
