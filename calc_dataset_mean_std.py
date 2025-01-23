@@ -1,7 +1,9 @@
 from pathlib import Path
+
+import numpy as np
 import torch
 from PIL import Image
-import numpy as np
+
 
 def preprocess(input_folder: Path, batch_size: int = 128) -> None:
     all_image_paths = []

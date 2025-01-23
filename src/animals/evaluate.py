@@ -1,12 +1,17 @@
+import time
+from pathlib import Path
+
+import pandas as pd
 import torch
 import typer
-from hydra import initialize, compose
+from hydra import compose, initialize
 from model import AnimalModel
+
 from data import split_dataset
-from pathlib import Path
-import time
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+animals_classes = {0: "dog", 1: "horse", 2: "elephant", 
+                       3: "butterfly",  4: "chicken", 5: "cat", 6: "cow", 7: "sheep", 8: "spider", 9: "squirrel"}
 
 def evaluate(cfg, model_checkpoint: str) -> None:
     """Evaluate a trained model."""
@@ -24,11 +29,26 @@ def evaluate(cfg, model_checkpoint: str) -> None:
     model.eval()
     correct, total = 0, 0
 
+    results = []
+
     for img, target in test_dataloader:
         img, target = img.to(DEVICE), target.to(DEVICE)
         output = model(img)
-        correct += (output.argmax(1) == target).float().sum().item()
+        predictions = output.argmax(1)
+        correct += (predictions == target).float().sum().item()
         total += target.size(0)
+
+        softmaxxed = output.softmax(dim=-1)
+
+        for i in range(len(target)):
+            results.append({
+                'target': animals_classes[target[i].item()],
+                **{animal: softmaxxed[i, j].item() for j, animal in animals_classes.items()}
+            })
+
+    results_df = pd.DataFrame(results)
+    results_df.to_csv("reports/evaluation_results.csv", index=False)
+
     stop_time = time.time()
     print(f"Time taken: {stop_time - start_time}")
     print(f"Accuracy: {correct / total}")

@@ -1,6 +1,7 @@
-from src.animals.model import AnimalModel
-from hydra import initialize, compose
 import torch
+from hydra import compose, initialize
+
+from src.animals.model import AnimalModel
 
 
 def test_model_output_shape():

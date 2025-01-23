@@ -1,16 +1,18 @@
-from pathlib import Path
 import os
+from pathlib import Path
+
 import hydra
+import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
-from model import AnimalModel
-from sklearn.metrics import accuracy_score, f1_score
-import matplotlib.pyplot as plt
 import typer
 from dotenv import load_dotenv
-from data import split_dataset
 from google.cloud import storage
+from model import AnimalModel
+from sklearn.metrics import accuracy_score, f1_score
+
 import wandb
+from data import split_dataset
 
 print("Current working directory:", os.getcwd())
 print("Contents of the directory:", os.listdir(os.getcwd()))

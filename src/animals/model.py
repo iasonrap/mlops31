@@ -1,7 +1,8 @@
 import hydra
-import torch
 import timm
+import torch
 import torch.nn as nn
+
 
 class AnimalModel(nn.Module):
     def __init__(self, model_name, num_classes):

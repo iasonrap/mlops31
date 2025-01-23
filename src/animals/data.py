@@ -1,11 +1,13 @@
-from pathlib import Path
-import torch
-from sklearn.model_selection import train_test_split
-from google.cloud import storage
 import os
-from PIL import Image
-import torchvision.transforms as T
+from pathlib import Path
+
 import numpy as np
+import torch
+import torchvision.transforms as T
+from google.cloud import storage
+from PIL import Image
+from sklearn.model_selection import train_test_split
+
 
 class AnimalsDataset(torch.utils.data.Dataset):
     def __init__(self, image_paths, targets, transform=None):
