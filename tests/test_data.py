@@ -1,8 +1,11 @@
-from src.animals.data import AnimalsDataset, split_dataset, calculate_mean_std
-from pathlib import Path
-import torch
-import pytest
 import os
+from pathlib import Path
+
+import pytest
+import torch
+
+from src.animals.data import AnimalsDataset, calculate_mean_std, split_dataset
+
 
 @pytest.mark.skipif(not os.path.exists(str(Path.cwd()) + "/data/raw/raw-img"), reason="Data not found")
 def test_animals_dataset_initialization():

@@ -1,15 +1,17 @@
 import datetime
 import json
+import os
 from contextlib import asynccontextmanager
-from src.animals.model import AnimalModel
+
+import requests
 import torch
 from fastapi import FastAPI, File, HTTPException, UploadFile
-from PIL import Image
-from torchvision import transforms
-import requests
-import os
-from pydantic import BaseModel
 from google.cloud import storage
+from PIL import Image
+from pydantic import BaseModel
+from torchvision import transforms
+
+from src.animals.model import AnimalModel
 
 
 @asynccontextmanager

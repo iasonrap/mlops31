@@ -5,6 +5,7 @@ import requests
 import streamlit as st
 from google.cloud import run_v2
 
+
 @st.cache_resource  
 def get_backend_url():
     """Get the URL of the backend service."""

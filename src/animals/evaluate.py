@@ -1,11 +1,13 @@
+import time
+from pathlib import Path
+
+import pandas as pd
 import torch
 import typer
-from hydra import initialize, compose
+from hydra import compose, initialize
 from model import AnimalModel
+
 from data import split_dataset
-from pathlib import Path
-import time
-import pandas as pd
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 animals_classes = {0: "dog", 1: "horse", 2: "elephant", 
