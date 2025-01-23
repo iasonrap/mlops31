@@ -5,6 +5,7 @@ from pathlib import Path
 project_root = Path(__file__).resolve().parents[1]
 image_path = project_root / "data" / "raw" / "raw-img"
 
+
 def test_animals_dataset_initialization():
     image_paths = ["src/animals/data/raw/raw-img/cane/OIF-e2bexWrojgtQnAPPcUfOWQ.jpeg",
                    "src/animals/data/raw/raw-img/cane/OIP-__Yu1XH3iAC10OzGQFpC-AHaE8.jpeg"]
