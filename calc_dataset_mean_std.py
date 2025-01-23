@@ -22,7 +22,7 @@ def preprocess(input_folder: Path, batch_size: int = 128) -> None:
 
     # Process images in batches
     for i in range(0, len(all_image_paths), batch_size):
-        batch_paths = all_image_paths[i:i + batch_size]
+        batch_paths = all_image_paths[i : i + batch_size]
         batch = []
 
         for img_path in batch_paths:
@@ -39,14 +39,15 @@ def preprocess(input_folder: Path, batch_size: int = 128) -> None:
         # Update running sum and pixel count
         n_pixels += batch_tensor.numel()
         running_sum += batch_tensor.sum().item()
-        running_square_sum += (batch_tensor ** 2).sum().item()
+        running_square_sum += (batch_tensor**2).sum().item()
 
     # Calculate mean and standard deviation
     mean = running_sum / n_pixels
-    std = ((running_square_sum / n_pixels) - (mean ** 2)) ** 0.5 
+    std = ((running_square_sum / n_pixels) - (mean**2)) ** 0.5
 
     print(f"Dataset Mean: {mean}")
     print(f"Dataset Std: {std}")
+
 
 if __name__ == "__main__":
     input_folder = Path("data/raw")

@@ -24,5 +24,5 @@ def main(cfg):
     print(y.shape)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

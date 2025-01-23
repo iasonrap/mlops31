@@ -22,6 +22,7 @@ def test_model_output_shape():
     expected_shape = (1, cfg.hyperparameters.num_classes)
     assert y.shape == expected_shape, f"Expected output shape {expected_shape}, but got {y.shape}"
 
+
 def test_model_with_different_input_size():
     """Test that the model works with a different input size (e.g. 128x128)."""
     # Initialize Hydra and compose the configuration
@@ -39,6 +40,7 @@ def test_model_with_different_input_size():
     # Assert the output shape is correct
     expected_shape = (1, cfg.hyperparameters.num_classes)
     assert y.shape == expected_shape, f"Expected output shape {expected_shape}, but got {y.shape}"
+
 
 def test_model_with_invalid_input():
     """Test the model with invalid input (e.g., incorrect number of channels)."""
@@ -60,6 +62,7 @@ def test_model_with_invalid_input():
     except Exception as e:
         # Ensure the raised exception is the expected type
         assert isinstance(e, RuntimeError), f"Expected a RuntimeError, but got {type(e)}"
+
 
 def main():
     test_model_output_shape()
