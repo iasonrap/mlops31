@@ -41,7 +41,7 @@ jobs:
           coverage --version
 
       - name: Run tests & coverage
-        working-directory: tests/
+        working-directory: tests
         run: |
           coverage run -m pytest tests/
           coverage report -m
