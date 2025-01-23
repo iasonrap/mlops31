@@ -35,7 +35,6 @@ google-pasta==0.2.0
 griffe==1.5.4
 grpcio==1.69.0
 h5py==3.12.1
-hydra-core
 identify==2.6.5
 idna==3.10
 importlib_metadata 
@@ -134,5 +133,6 @@ typer~=0.15.1
 scikit-learn~=1.6.1
 tqdm~=4.67.1
 google-cloud-storage
+hydra-core
 python-multipart
 uvicorn

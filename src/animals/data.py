@@ -1,12 +1,11 @@
 from pathlib import Path
 import torch
 from sklearn.model_selection import train_test_split
-import kagglehub
-import shutil
+from google.cloud import storage
+import os
 from PIL import Image
 import torchvision.transforms as T
 import numpy as np
-import os
 
 class AnimalsDataset(torch.utils.data.Dataset):
     def __init__(self, image_paths, targets, transform=None):
@@ -83,25 +82,36 @@ def calculate_mean_std(input_folder: Path, batch_size: int = 128) -> None:
     return mean, std
 
 
-def download(dataset: str) -> None:
+def download(bucket_name, destination_folder) -> None:
     """Preprocess the raw data and save it to the output folder."""
     # Download latest version
     if os.path.exists("data/raw/raw-img"):
         print("Dataset exists, skipping download.")
         return
-    path = kagglehub.dataset_download(dataset)
+        
+    storage_client = storage.Client()
 
-    # Move filed from downloaded folder to data/raw
-    source_folder = Path(path+"/raw-img")
-    destination_folder = Path(str(Path.cwd())+"/data/raw/raw-img")
-    if destination_folder.is_dir():
-        shutil.rmtree(destination_folder)
-    shutil.move(str(source_folder), str(destination_folder))
+    # Get the bucket
+    bucket = storage_client.bucket(bucket_name)
 
-    # Remove the downloaded folder
-    shutil.rmtree(source_folder.parent.parent.parent.parent)
+    # List all blobs in the bucket
+    blobs = bucket.list_blobs(prefix="raw/")
 
-    print(f"Folder moved from '{source_folder}' to '{destination_folder}'")
+    # Ensure the destination folder exists
+    os.makedirs(destination_folder, exist_ok=True)
+
+    # Download each blob
+    count = 0
+    for blob in blobs:
+        print(blob.name)
+        if str(blob.name).endswith("/") or str(blob.name).endswith(".zip"):
+            continue
+        #print(blob.name)
+        destination_file_name = os.path.join(destination_folder, blob.name)  # Append blob name to destination folder
+        os.makedirs(os.path.dirname(destination_file_name), exist_ok=True)  # Ensure subdirectories exist
+        #print(destination_file_name)
+        blob.download_to_filename(destination_file_name)  # Save blob to the file path
+        #print(f"Downloaded '{blob.name}' to '{destination_file_name}'.")
 
 def split_dataset(input_folder: Path, split_ratios=(0.8, 0.1, 0.1), mean=None, std=None) -> tuple[AnimalsDataset, AnimalsDataset, AnimalsDataset]:
     """
@@ -158,8 +168,9 @@ def split_dataset(input_folder: Path, split_ratios=(0.8, 0.1, 0.1), mean=None, s
     return train_dataset, test_dataset, val_dataset
 
 if __name__ == "__main__":
-    dataset = "alessiocorrado99/animals10"
-    download(dataset)
+    bucket_name = "31animals"  # Replace with your bucket name
+    destination_folder = str(Path.cwd().parent.parent) + "/data/"     # Replace with your desired local folder
+    download(bucket_name, destination_folder)
 
     input_folder = Path(str(Path.cwd())+"/data/raw/raw-img")
 
