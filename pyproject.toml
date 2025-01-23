@@ -30,5 +30,4 @@ line-length = 120
 lint.select = ["I"]
 
 [tool.coverage.run]
-include = ["src/"]
 omit = ["tests/*"]
