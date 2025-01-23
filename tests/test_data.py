@@ -2,7 +2,7 @@ from src.animals.data import AnimalsDataset, calculate_mean_std, split_dataset
 import torch
 from pathlib import Path
 
-project_root = Path(__file__).resolve()
+project_root = Path(__file__).resolve().parents[1]
 image_path = project_root / "data" / "raw" / "raw-img"
 
 
