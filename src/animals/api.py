@@ -33,7 +33,7 @@ async def lifespan(app: FastAPI):
         print(f"Failed to download file. HTTP Status: {r.status_code}")
         print(r.text)
 
-    model.load_state_dict(torch.load("AnimalModel_gcd.pth", map_location=torch.device('cpu')))
+    model.load_state_dict(torch.load("AnimalModel_gcd.pth", map_location=torch.device("cpu")))
 
     transform = transforms.Compose(
         [
@@ -43,8 +43,18 @@ async def lifespan(app: FastAPI):
         ],
     )
 
-    animals_classes = {0: "dog", 1: "horse", 2: "elephant", 
-                       3: "butterfly",  4: "chicken", 5: "cat", 6: "cow", 7: "sheep", 8: "spider", 9: "squirrel"}
+    animals_classes = {
+        0: "dog",
+        1: "horse",
+        2: "elephant",
+        3: "butterfly",
+        4: "chicken",
+        5: "cat",
+        6: "cow",
+        7: "sheep",
+        8: "spider",
+        9: "squirrel",
+    }
 
     yield
 
@@ -57,9 +67,11 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+
 class DataPayload(BaseModel):
     x: str
     probabilities: list
+
 
 def predict_image(image_path: str) -> str:
     """Predict image class (or classes) given image path and return the result."""
@@ -89,7 +101,8 @@ async def classify_image(file: UploadFile = File(...)):
         return {"filename": file.filename, "prediction": prediction, "probabilities": probabilities.squeeze().tolist()}
     except Exception as e:
         raise HTTPException(status_code=500) from e
-    
+
+
 @app.post("/post_data")
 async def post_data(payload: DataPayload):
     """
@@ -103,7 +116,10 @@ async def post_data(payload: DataPayload):
         print(f"Received image label: {img_input}, probabilities: {img_probabilities}")
 
         time_stamp = datetime.datetime.now(tz=datetime.UTC).isoformat()
-        data = {'target': img_input, **{animal: prob for animal, prob in zip(animals_classes.values(), img_probabilities)}}
+        data = {
+            "target": img_input,
+            **{animal: prob for animal, prob in zip(animals_classes.values(), img_probabilities)},
+        }
 
         # Upload the data to GCS
         storage_client = storage.Client()
@@ -112,6 +128,6 @@ async def post_data(payload: DataPayload):
         blob.upload_from_string(json.dumps(data))
 
         return {"message": "Data received and uploaded successfully!"}
-    
+
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error processing data: {str(e)}")

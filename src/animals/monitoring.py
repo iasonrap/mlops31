@@ -9,7 +9,7 @@ from evidently.report import Report
 
 
 def run_analysis(evaluation_results: pd.DataFrame, predictions: pd.DataFrame) -> None:
-     # Prepare data for Evidently
+    # Prepare data for Evidently
     # Add the predicted class column based on maximum probability
     evaluation_results["prediction"] = evaluation_results.iloc[:, 1:].idxmax(axis=1)  # From probabilities
     predictions["prediction"] = predictions.iloc[:, 1:].idxmax(axis=1)
@@ -19,14 +19,21 @@ def run_analysis(evaluation_results: pd.DataFrame, predictions: pd.DataFrame) ->
     print(reference_data.head(5))
     current_data = predictions[["target", "prediction"]]
     print(current_data.head(5))
-    
+
     # Create the Classification Performance Report
-    report = Report(metrics=[ClassificationQualityMetric(), ClassificationClassBalance(), ClassificationConfusionMatrix(),
-                             ClassificationQualityByClass()])
+    report = Report(
+        metrics=[
+            ClassificationQualityMetric(),
+            ClassificationClassBalance(),
+            ClassificationConfusionMatrix(),
+            ClassificationQualityByClass(),
+        ]
+    )
     report.run(reference_data=reference_data, current_data=current_data)
 
     # Save the report as an HTML file
     report.save_html("reports/classification_performance_report.html")
+
 
 if __name__ == "__main__":
     # Load reference and current data
