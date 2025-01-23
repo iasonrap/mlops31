@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - joel
   pull_request:
     branches:
       - main
@@ -34,6 +35,10 @@ jobs:
           pip install -r requirements.txt
           pip list
 
+      - name: Check if coverage is available
+        run: |
+          pip install coverage pytest
+          coverage --version
 
       - name: Run tests & coverage
         run: |
