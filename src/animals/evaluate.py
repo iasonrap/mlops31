@@ -1,12 +1,28 @@
+import time
+from pathlib import Path
+
+import pandas as pd
 import torch
 import typer
-from hydra import initialize, compose
+from hydra import compose, initialize
 from model import AnimalModel
+
 from data import split_dataset
-from pathlib import Path
-import time
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+animals_classes = {
+    0: "dog",
+    1: "horse",
+    2: "elephant",
+    3: "butterfly",
+    4: "chicken",
+    5: "cat",
+    6: "cow",
+    7: "sheep",
+    8: "spider",
+    9: "squirrel",
+}
+
 
 def evaluate(cfg, model_checkpoint: str) -> None:
     """Evaluate a trained model."""
@@ -16,19 +32,39 @@ def evaluate(cfg, model_checkpoint: str) -> None:
     model = AnimalModel(cfg.hyperparameters.model_name, cfg.hyperparameters.num_classes).to(DEVICE)
     model.load_state_dict(torch.load(model_checkpoint), strict=False)
     model.to(DEVICE)
-    _, test_set, _ = split_dataset(Path("data/raw/raw-img/"), 
-                                    mean=torch.tensor([0.5177, 0.5003, 0.4126]), std=torch.tensor([0.2659, 0.2610, 0.2785]))
+    _, test_set, _ = split_dataset(
+        Path("data/raw/raw-img/"),
+        mean=torch.tensor([0.5177, 0.5003, 0.4126]),
+        std=torch.tensor([0.2659, 0.2610, 0.2785]),
+    )
 
     test_dataloader = torch.utils.data.DataLoader(test_set, cfg.hyperparameters.batch_size, shuffle=False)
 
     model.eval()
     correct, total = 0, 0
 
+    results = []
+
     for img, target in test_dataloader:
         img, target = img.to(DEVICE), target.to(DEVICE)
         output = model(img)
-        correct += (output.argmax(1) == target).float().sum().item()
+        predictions = output.argmax(1)
+        correct += (predictions == target).float().sum().item()
         total += target.size(0)
+
+        softmaxxed = output.softmax(dim=-1)
+
+        for i in range(len(target)):
+            results.append(
+                {
+                    "target": animals_classes[target[i].item()],
+                    **{animal: softmaxxed[i, j].item() for j, animal in animals_classes.items()},
+                }
+            )
+
+    results_df = pd.DataFrame(results)
+    results_df.to_csv("reports/evaluation_results.csv", index=False)
+
     stop_time = time.time()
     print(f"Time taken: {stop_time - start_time}")
     print(f"Accuracy: {correct / total}")
@@ -37,11 +73,10 @@ def evaluate(cfg, model_checkpoint: str) -> None:
 # Initialize Typer app
 app = typer.Typer()
 
+
 # Define the evaluate command
 @app.command()
-def evaluate_command(
-    model_checkpoint: str = typer.Option(..., help="Path to the model checkpoint")
-):
+def evaluate_command(model_checkpoint: str = typer.Option(..., help="Path to the model checkpoint")):
     """Wrapper for evaluation."""
     # Initialize Hydra and load the config
     with initialize(version_base="1.1", config_path="conf"):
@@ -49,6 +84,7 @@ def evaluate_command(
 
     # Call the evaluation function
     evaluate(cfg, model_checkpoint)
+
 
 if __name__ == "__main__":
     app()

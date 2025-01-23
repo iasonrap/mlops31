@@ -1,10 +1,11 @@
+fastapi
+google-cloud-run
 google-cloud-storage
+gsutil
+hydra-core
 python-multipart
+requests
+timm
 torch
 torchvision
-timm
-fastapi
 uvicorn
-gsutil
-requests
-google-cloud-run
