@@ -358,7 +358,8 @@ Docker was used as the preferred way to train our model and ensure anything that
 > Answer:
 
 The main way to debug, especially in code was to look at the error messages and narrow down the place the error took place. After that understanding what could have gone wrong, especially considering latest
-changes done by you or if a pull request was done, what that could have changed. We did do profiling for train.py and there was nothing major to fix besides the training takes too long for minimum improvements.
+changes done by you or if a pull request was done, what that could have changed. We did do profiling for train.py and there was nothing major to fix besides the training takes too long for minimum improvements,
+our results have been logged under profile_results.prof
 
 ## Working in the cloud
 
