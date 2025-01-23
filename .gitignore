@@ -2,8 +2,9 @@ docs/site/
 data/raw/
 data/processed/
 models/
-reports/
+#reports/
 wandb/
+outputs/
 
 # test cache
 manual_test/

@@ -1,6 +1,17 @@
 from pathlib import Path
-
 import os
+import hydra
+import torch
+import torch.nn as nn
+from model import AnimalModel
+from sklearn.metrics import accuracy_score, f1_score
+import matplotlib.pyplot as plt
+import typer
+from dotenv import load_dotenv
+from data import split_dataset
+from google.cloud import storage
+import wandb
+
 print("Current working directory:", os.getcwd())
 print("Contents of the directory:", os.listdir(os.getcwd()))
 
@@ -8,23 +19,32 @@ data_dir = Path("data/raw/raw-img/")
 if not data_dir.exists():
     raise FileNotFoundError(f"Directory {data_dir} does not exist.")
 
-import hydra
-import torch
-import torch.nn as nn
-from animals.model import AnimalModel
-from sklearn.metrics import accuracy_score, f1_score
-import matplotlib.pyplot as plt
-import typer
-from dotenv import load_dotenv
-from data import split_dataset
-
-import tqdm as tqdm
-import wandb
-import os
 load_dotenv()
 api_key = os.getenv("WANDB_API_KEY")
 entity = os.getenv("WANDB_ENTITY")
 project = os.getenv("WANDB_PROJECT")
+
+def upload_blob(bucket_name, source_file_name, destination_blob_name):
+    """Uploads a file to the bucket."""
+    # The ID of your GCS bucket
+    # bucket_name = "your-bucket-name"
+    # The path to your file to upload
+    # source_file_name = "local/path/to/file"
+    # The ID of your GCS object
+    # destination_blob_name = "storage-object-name"
+
+    #print("Authenticating...")
+    storage_client = storage.Client()
+    #print("Finding bucket...")
+    bucket = storage_client.bucket(bucket_name)
+    #print("Creating blob...")
+    blob = bucket.blob(destination_blob_name)
+    #print("Uploading file...")
+    blob.upload_from_filename(source_file_name)
+
+    print(
+        f"File {source_file_name} uploaded to {destination_blob_name}."
+    )
 
 torch.manual_seed(42)
 
@@ -38,8 +58,9 @@ def train(cfg) -> None:
     model = AnimalModel(cfg.hyperparameters.model_name, cfg.hyperparameters.num_classes).to(DEVICE)
 
     run = wandb.init(project=project, entity=entity, config={"lr": cfg.optimizer.lr, "batch_size": cfg.hyperparameters.batch_size, "epochs": cfg.hyperparameters.epochs})
-    # Load the data
-    train_dataset, _, val_dataset = split_dataset(Path("data/raw/raw-img/"), 
+    # Set working dir
+    os.chdir(hydra.utils.get_original_cwd())
+    train_dataset, _, val_dataset = split_dataset(Path(hydra.utils.get_original_cwd() + "/data/raw/raw-img"), 
                                                   mean=torch.tensor([0.5177, 0.5003, 0.4126]), std=torch.tensor([0.2659, 0.2610, 0.2785]))
     train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=cfg.hyperparameters.batch_size, shuffle=True)
     val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=cfg.hyperparameters.batch_size, shuffle=False)
@@ -80,22 +101,36 @@ def train(cfg) -> None:
         # Perform eval
         model.eval()
         val_preds, val_targets = [], []
+        total_val_loss, total_val_acc = 0.0, 0.0  # Initialize accumulators
+        num_batches = 0  # To track the number of batches
+
         with torch.no_grad():
             for _, (images, labels) in enumerate(val_dataloader):
                 images, labels = images.to(DEVICE), labels.to(DEVICE)
                 outputs = model(images)
                 val_loss = loss_fn(outputs, labels)
 
-                stats['val_loss'].append(val_loss.item())
-
+                # Accumulate loss and accuracy
+                total_val_loss += val_loss.item()
                 val_acc = (outputs.argmax(1) == labels).float().mean().item()
-                stats['val_acc'].append(val_acc)
+                total_val_acc += val_acc
+                num_batches += 1
 
+                # Append predictions and targets for further analysis
                 val_preds.append(outputs.detach().cpu())
                 val_targets.append(labels.detach().cpu())
 
-                wandb.log({"val_loss": val_loss.item(), "val_accuracy_epochs": val_acc})
-        print(f"Epoch {epoch+1}/{cfg.hyperparameters.epochs}, Train Loss: {loss.item()}, Train Acc: {acc}, Val Loss: {val_loss.item()}, Val Acc: {val_acc}")
+            # Compute average loss and accuracy
+            avg_val_loss = total_val_loss / num_batches
+            avg_val_acc = total_val_acc / num_batches
+
+            # Log the average metrics to wandb
+            wandb.log({"val_loss": avg_val_loss, "val_accuracy_epochs": avg_val_acc})
+
+        print(
+            f"Epoch {epoch+1}/{cfg.hyperparameters.epochs}, Train Loss: {loss.item()}, Train Acc: {acc:.4f}, "
+            f"Val Loss: {avg_val_loss:.4f}, Val Acc: {avg_val_acc:.4f}"
+        )
 
         preds = torch.cat(preds, 0)
         targets = torch.cat(targets, 0)
@@ -111,6 +146,12 @@ def train(cfg) -> None:
 
     print("Saving model locally...")
     torch.save(model.state_dict(), "models/AnimalModel.pth")
+
+    print("Saving model to google cloud bucket...")
+    try:
+        upload_blob("31animals", "models/AnimalModel.pth", "models/AnimalModel.pth")
+    except Exception as e:
+        print("Failed to upload model to google cloud bucket. Error:", e)
 
     artifact = wandb.Artifact(
         name="animals_resnet_model",
