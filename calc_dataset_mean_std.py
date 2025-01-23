@@ -52,4 +52,3 @@ if __name__ == "__main__":
     input_folder = Path("data/raw")
     output_folder = Path("data/processed")
     preprocess(input_folder, output_folder)
-    print(":3")
