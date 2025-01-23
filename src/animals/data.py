@@ -1,11 +1,12 @@
-from pathlib import Path
-import torch
-from sklearn.model_selection import train_test_split
-from google.cloud import storage
 import os
-from PIL import Image
-import torchvision.transforms as T
+from pathlib import Path
+
 import numpy as np
+import torch
+import torchvision.transforms as T
+from google.cloud import storage
+from PIL import Image
+from sklearn.model_selection import train_test_split
 
 
 class AnimalsDataset(torch.utils.data.Dataset):
@@ -43,7 +44,7 @@ def calculate_mean_std(input_folder: Path, batch_size: int = 128) -> None:
 
     # Process images in batches
     for i in range(0, len(all_image_paths), batch_size):
-        batch_paths = all_image_paths[i:i + batch_size]
+        batch_paths = all_image_paths[i : i + batch_size]
         batch = []
 
         for img_path in batch_paths:
@@ -74,11 +75,11 @@ def calculate_mean_std(input_folder: Path, batch_size: int = 128) -> None:
         # Update running sums and pixel count
         n_pixels += batch_tensor.size(0) * batch_tensor.size(2) * batch_tensor.size(3)  # Total pixels
         running_sum += batch_tensor.sum(dim=[0, 2, 3])  # Sum over batch, height, width
-        running_square_sum += (batch_tensor ** 2).sum(dim=[0, 2, 3])
+        running_square_sum += (batch_tensor**2).sum(dim=[0, 2, 3])
 
     # Calculate mean and standard deviation for each channel
     mean = running_sum / n_pixels
-    std = torch.sqrt(running_square_sum / n_pixels - mean ** 2)
+    std = torch.sqrt(running_square_sum / n_pixels - mean**2)
     print(f"Mean: {mean}, Std: {std}")
     return mean, std
 
@@ -107,16 +108,17 @@ def download(bucket_name, destination_folder) -> None:
         print(blob.name)
         if str(blob.name).endswith("/") or str(blob.name).endswith(".zip"):
             continue
-        #print(blob.name)
+        # print(blob.name)
         destination_file_name = os.path.join(destination_folder, blob.name)  # Append blob name to destination folder
         os.makedirs(os.path.dirname(destination_file_name), exist_ok=True)  # Ensure subdirectories exist
-        #print(destination_file_name)
+        # print(destination_file_name)
         blob.download_to_filename(destination_file_name)  # Save blob to the file path
-        #print(f"Downloaded '{blob.name}' to '{destination_file_name}'.")
+        # print(f"Downloaded '{blob.name}' to '{destination_file_name}'.")
 
 
-def split_dataset(input_folder: Path, split_ratios=(0.8, 0.1, 0.1), mean=None, std=None) -> tuple[
-    AnimalsDataset, AnimalsDataset, AnimalsDataset]:
+def split_dataset(
+    input_folder: Path, split_ratios=(0.8, 0.1, 0.1), mean=None, std=None
+) -> tuple[AnimalsDataset, AnimalsDataset, AnimalsDataset]:
     """
     Split the dataset into train, test, and validation PyTorch Datasets.
 
@@ -134,8 +136,11 @@ def split_dataset(input_folder: Path, split_ratios=(0.8, 0.1, 0.1), mean=None, s
     all_targets = []
     for animal_subfolder in input_folder.iterdir():
         if animal_subfolder.is_dir():
-            images = [img for img in animal_subfolder.glob("*.*")
-                      if img.suffix.lower() in [".jpg", ".jpeg", ".png", ".bmp", ".tiff"]]
+            images = [
+                img
+                for img in animal_subfolder.glob("*.*")
+                if img.suffix.lower() in [".jpg", ".jpeg", ".png", ".bmp", ".tiff"]
+            ]
             all_image_paths.extend(images)
             all_targets.extend([animal_subfolder.name] * len(images))
 
@@ -149,8 +154,11 @@ def split_dataset(input_folder: Path, split_ratios=(0.8, 0.1, 0.1), mean=None, s
         all_image_paths, all_targets, test_size=(1 - train_ratio), stratify=all_targets, random_state=42
     )
     val_images, test_images, val_targets, test_targets = train_test_split(
-        temp_images, temp_targets, test_size=test_ratio / (val_ratio + test_ratio), stratify=temp_targets,
-        random_state=42
+        temp_images,
+        temp_targets,
+        test_size=test_ratio / (val_ratio + test_ratio),
+        stratify=temp_targets,
+        random_state=42,
     )
 
     # Calculate mean and std if not provided
@@ -158,11 +166,13 @@ def split_dataset(input_folder: Path, split_ratios=(0.8, 0.1, 0.1), mean=None, s
         mean, std = calculate_mean_std(input_folder)
 
     # Define transformations
-    transform = T.Compose([
-        T.Resize((224, 224)),
-        T.ToTensor(),
-        T.Normalize(mean=mean, std=std),
-    ])
+    transform = T.Compose(
+        [
+            T.Resize((224, 224)),
+            T.ToTensor(),
+            T.Normalize(mean=mean, std=std),
+        ]
+    )
 
     # Create datasets
     train_dataset = AnimalsDataset(train_images, train_targets, transform)
@@ -174,7 +184,7 @@ def split_dataset(input_folder: Path, split_ratios=(0.8, 0.1, 0.1), mean=None, s
 
 if __name__ == "__main__":
     bucket_name = "31animals"  # Replace with your bucket name
-    destination_folder = str(Path.cwd().parent.parent) + "/data/"     # Replace with your desired local folder
+    destination_folder = str(Path.cwd().parent.parent) + "/data/"  # Replace with your desired local folder
     download(bucket_name, destination_folder)
 
     input_folder = Path(str(Path.cwd()) + "/data/raw/raw-img")

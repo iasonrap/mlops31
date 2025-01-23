@@ -1,11 +1,17 @@
+import datetime
+import json
+import os
 from contextlib import asynccontextmanager
-from src.animals.model import AnimalModel
+
+import requests
 import torch
 from fastapi import FastAPI, File, HTTPException, UploadFile
+from google.cloud import storage
 from PIL import Image
+from pydantic import BaseModel
 from torchvision import transforms
-import requests
-import os
+
+from src.animals.model import AnimalModel
 
 
 @asynccontextmanager
@@ -13,7 +19,7 @@ async def lifespan(app: FastAPI):
     """Context manager to start and stop the lifespan events of the FastAPI application."""
     global model, transform, animals_classes
     # Load model
-    model = AnimalModel()
+    model = AnimalModel("resnet18", 10)
     model.eval()
 
     url = "https://storage.googleapis.com/31animals/models/AnimalModel.pth"
@@ -27,7 +33,7 @@ async def lifespan(app: FastAPI):
         print(f"Failed to download file. HTTP Status: {r.status_code}")
         print(r.text)
 
-    model.load_state_dict(torch.load("AnimalModel_gcd.pth", map_location=torch.device('cpu')))
+    model.load_state_dict(torch.load("AnimalModel_gcd.pth", map_location=torch.device("cpu")))
 
     transform = transforms.Compose(
         [
@@ -37,8 +43,18 @@ async def lifespan(app: FastAPI):
         ],
     )
 
-    animals_classes = {0: "dog", 1: "horse", 2: "elephant", 
-                       3: "butterfly",  4: "chicken", 5: "cat", 6: "cow", 7: "sheep", 8: "spider", 9: "squirrel"}
+    animals_classes = {
+        0: "dog",
+        1: "horse",
+        2: "elephant",
+        3: "butterfly",
+        4: "chicken",
+        5: "cat",
+        6: "cow",
+        7: "sheep",
+        8: "spider",
+        9: "squirrel",
+    }
 
     yield
 
@@ -50,6 +66,11 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+
+
+class DataPayload(BaseModel):
+    x: str
+    probabilities: list
 
 
 def predict_image(image_path: str) -> str:
@@ -80,3 +101,33 @@ async def classify_image(file: UploadFile = File(...)):
         return {"filename": file.filename, "prediction": prediction, "probabilities": probabilities.squeeze().tolist()}
     except Exception as e:
         raise HTTPException(status_code=500) from e
+
+
+@app.post("/post_data")
+async def post_data(payload: DataPayload):
+    """
+    Endpoint to receive data from the frontend.
+    """
+    # Validate and process the received data
+    try:
+        img_input = payload.x
+        img_probabilities = payload.probabilities
+
+        print(f"Received image label: {img_input}, probabilities: {img_probabilities}")
+
+        time_stamp = datetime.datetime.now(tz=datetime.UTC).isoformat()
+        data = {
+            "target": img_input,
+            **{animal: prob for animal, prob in zip(animals_classes.values(), img_probabilities)},
+        }
+
+        # Upload the data to GCS
+        storage_client = storage.Client()
+        bucket = storage_client.bucket("gcp_monitoring_animals")
+        blob = bucket.blob(f"current/predictions_{time_stamp}.json")
+        blob.upload_from_string(json.dumps(data))
+
+        return {"message": "Data received and uploaded successfully!"}
+
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error processing data: {str(e)}")

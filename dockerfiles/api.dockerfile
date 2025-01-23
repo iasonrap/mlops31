@@ -5,7 +5,7 @@ RUN apt update && \
     apt install --no-install-recommends -y build-essential gcc && \
     apt clean && rm -rf /var/lib/apt/lists/*
 
-COPY src src/
+COPY src/ src/
 COPY requirements_backend.txt requirements_backend.txt
 COPY README.md README.md
 COPY pyproject.toml pyproject.toml
