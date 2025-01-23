@@ -48,8 +48,6 @@ def upload_blob(bucket_name, source_file_name, destination_blob_name):
     print(f"File {source_file_name} uploaded to {destination_blob_name}.")
 
 
-torch.manual_seed(42)
-
 wandb.login(key=api_key)
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -57,6 +55,7 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def train(cfg) -> None:
     """Train the model."""
+    torch.manual_seed(cfg.hyperparameters.seed)
     print(
         f"Training the model with lr={cfg.optimizer.lr}, batch_size={cfg.hyperparameters.batch_size}, epochs={cfg.hyperparameters.epochs}"
     )
