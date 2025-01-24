@@ -16,11 +16,6 @@ from data import split_dataset
 
 print("Current working directory:", os.getcwd())
 print("Contents of the directory:", os.listdir(os.getcwd()))
-
-data_dir = Path("data/raw/raw-img/")
-if not data_dir.exists():
-    raise FileNotFoundError(f"Directory {data_dir} does not exist.")
-
 load_dotenv()
 api_key = os.getenv("WANDB_API_KEY")
 entity = os.getenv("WANDB_ENTITY")
