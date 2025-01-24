@@ -125,7 +125,7 @@ Group 31
 >
 > Answer:
 
-s24084, s204150, s240154, s240076, s240056
+s24084, s204150, s240154, s240076, s204084
 
 ### Question 3
 > **A requirement to the project is that you include a third-party package not covered in the course. What framework**
@@ -215,7 +215,7 @@ For the API part, we are checking if the backend can be contacted, if it can cla
 >
 > Answer:
 
-Currently, 72% of the project's code has been covered. Even reaching coverage levels extremely near to 100% does not 
+Currently, 72 of the project's code has been covered. Even reaching coverage levels extremely near to 100% does not 
 ensure that the software is error- or problem-free, even though a higher coverage percentage is preferable. This 
 drawback results from the fact that code coverage quantifies the amount of written code that is executed, but it ignores 
 potential use cases, edge situations, and unforeseen circumstances that might occur in practical application. 
@@ -455,7 +455,7 @@ We did not manage to train in the cloud due to issues with accessibility to a GP
 >
 > Answer:
 
-We did manage to write an API for our model, both a frontend and a backend. For this, we used FastAPI and Streamlit. The backend has two POST functions, one (/classify/) which takes an image and classifies it, using the model weights that are stored in a cloud bucket and another (/post_data/) which takes a DataPayload from the frontend and posts the results to a cloud bucket for further use by evidently. Playing aroudn with Streamlit, we tried to make it interesting and fun to use, and cross fingers that the users wont abuse it, as no security features are put in place.
+We did manage to write an API for our model, both a frontend and a backend. For this, we used FastAPI and Streamlit. The backend has two POST functions, one (/classify/) which takes an image and classifies it, using the model weights that are stored in a cloud bucket and another (/post_data/) which takes a DataPayload from the frontend and posts the results to a cloud bucket for further use by evidently. Playing around with Streamlit, we tried to make it interesting and fun to use, and cross fingers that the users won't abuse it, as no security features are put in place. The streamlit app can be found hosted on [Frontend link](https://frontend-739688782639.europe-west1.run.app/). The backend is quite uninteresting. 
 
 ### Question 24
 
@@ -471,7 +471,9 @@ We did manage to write an API for our model, both a frontend and a backend. For 
 >
 > Answer:
 
---- question 24 fill here ---
+The deployment of the backend was done by using FastAPI to create the application. Serving the model locally allowed us to use the /docs to test functionality and connection of the model, making sure that whatever was done locally would be reflected before deploying it to the cloud. The best way of accessing the backend is by using the frontend, which mitigates the need for using curl commands, which can get quite lengthy. The frontend sends a package with a file name to the backend which loads the file and classifies it, before enabling further functionality which can be used to evaluate the model. To invoke the backend service directly, a user would call:
+$ curl -X POST -F "file@path/to/file.jpg" https://animal-classify-app-739688782639.europe-west1.run.app/classify/
+One could also abuse the post_data/ function if providing the proper datapackage.
 
 ### Question 25
 
@@ -486,7 +488,8 @@ We did manage to write an API for our model, both a frontend and a backend. For 
 >
 > Answer:
 
---- question 25 fill here ---
+We did load testing using locust, representing a large number of users and seeing the effect on the relative response times and error rates. When running with 50 users, we saw that the response times linearly increased which means the responses are queeing due to the amount of time it takes to handle each request.
+The failure rate here is about 50\%. So likely it is not optimal to have 50 users at the same time. We then tried reducing the load to see how it would perform, and with 20 users the response time stabilizes but is still slow, at about 70 seconds at the 95th percentile, with 40\% failures and an unimpressive rps of 0.4. And when testing with 10 users these figures were similar, with our response time going down slightly to 60 s. However with only 1 user, we reach a response time of 240 ms, which is far more reasonable. With a relative failure rate of 40. When testing this in browser we see that the instantiation takes a long time, however, once up and running it is quite fast, like the 200 ms we saw. We believe this is the cause of our runtime issues in locust, as it reinstantiates and is very long to instantiate each time.
 
 ### Question 26
 
@@ -501,7 +504,9 @@ We did manage to write an API for our model, both a frontend and a backend. For 
 >
 > Answer:
 
---- question 26 fill here ---
+Monitoring was implemented in a way, such that anyone can ping a Cloud Function and get performance reports from the deployed model. The curl command for this is:
+$ curl -X GET "https://europe-west1-mlops31.cloudfunctions.net/generate_performance_report" -o reports.zip
+And gives insight in how the model is currently performing in comparison to the test set which the model is evaluated on after training. In a working environment, such a report should largely be generated automatically, and it gives good insight in how the model is used (as long as it is used within its own scope AND users are being truthful). While this is focused on the data quality and the performance of the model, further metrics could be good to have such as response time / latency of the requests the model is getting. As we saw from the load testing, the response time is quite long - having an alert system could help keep the model latency down by giving it, for example, a GPU. While data drifting could also be good to monitor, we did not find a proper use case for it in this project.
 
 ## Overall discussion of project
 
@@ -520,7 +525,7 @@ We did manage to write an API for our model, both a frontend and a backend. For 
 >
 > Answer:
 
-Member s240154 used 2.60$ credits, 
+Iason (s240154) spent $2.71 primarily from hosting the dataset in a google cloud bucket. Asbjørn (s204084) spent around $1 on hosting a smaller google cloud bucket and the cloud run services, and other group members spent around $0.2 we estimate. The total running cost is $3.96 all of which are covered by credits. The distribution of costs in regards to services is $0.81 for the artifact registry, $0.01 for cloud functions, $1.75 for storage, $1.40 for cloud run and $0 for vertex ai.
 
 ### Question 28
 
@@ -536,7 +541,7 @@ Member s240154 used 2.60$ credits,
 >
 > Answer:
 
---- question 28 fill here ---
+The frontend as mentioned previously. This was purely to make it easier to access the model, and a bit for fun. We tried to increase the model performance by doing quantization, compiling and pruning, but we could not get it to work properly unfortunately. 
 
 ### Question 29
 
@@ -553,7 +558,11 @@ Member s240154 used 2.60$ credits,
 >
 > Answer:
 
---- question 29 fill here ---
+The starting point of the diagram is our local setup, where we have integrated the source of the project, which contains the model, the training of the model, the evaluation of it and the api which can be called. Whenever we commit code to the main branch, an image of the train.py is uploaded the the Cloud Artifact registry, to be used to retrain the model in addition to unittests being performed to ensure that no code breaks the repository. While the model is training we are continuously logging to Wandb, and once it is finished we upload the model weights to Wandb and a google cloud bucket.
+
+The google cloud buckets are central to this project as the data to train the model is also hosted there. To download it, one need to just run the data.py file. In addition to the data, the buckets also perform a central role in storing the usage data of the deployed model, which can be used to create a performance report by a cloud function.
+
+To update the different parts of our project, one has to do so manually, for example, training the model from the uploaded image needs to be performed manually to update the model weights. After having the model weights updated, the app which pulls the model weights on startup, needs to be reset before it makes use of these. Naturally it would be beneficial, especially as it is not a very large model we are working with, to automate the deployment of the app and the training of the model whenever something is updated (and has passed all the unittests). 
 
 ### Question 30
 
@@ -567,7 +576,9 @@ Member s240154 used 2.60$ credits,
 >
 > Answer:
 
-There were quite some issues with the requirements.txt, lots of libraries being used or added that were not used and having issues with versioning and the docker images related also to that.
+There were quite some issues with the requirements.txt, lots of libraries being used or added that were not used and having issues with versioning. Many of these issues transferred over to the creation of Docker Images which took quite long to debug, as the docker images themselves take quite long to make. The issues with requirements were solved by making use of the package deptry (pip install deptry) which prunes packages that are not imported in the current project. Other issues included deploying deploying the model to cloud run, as the ports were not very intuitive to set, and there were slight differences in how to run things locally (on Windows) and the Linux OS, which made for small discrepancies in how to test things locally. There are still challenges in regards to accessing some of the cloud buckets, which were solved by simply making them public to the internet, though this is largely not desireable, as it can prove quite problematic if accessed by the wrong type of people. 
+
+Creating the Unittests were also not straightforward, as they had to be configured correctly, such that they did not fail just because they didn't reflect the actual code they should be testing for. This was fixed by meticulous debugging. The codecheck.yaml seems to consistently fail, even though "ruff check ." and "ruff format ." fails to return anything before doing a pull request to main. Why this is, we don't know. Overall, the project took quite a long time, especially the creation and deployment of the api, which required a lot of debugging both locally and in the cloud. 
 
 ### Question 31
 
@@ -588,3 +599,4 @@ There were quite some issues with the requirements.txt, lots of libraries being 
 --- question 31 fill here ---
 Student s240056 was in charge about buliding the docker image and therefore extended to make sure the requirements were always in line with the code. Also took the task to do some profiling in the code to ensure efficient code.
 Student s240154 was in charge of data. Downloaded them and then storage to google Bucket, implement the data.py file. Also initialized the git repo and the Google Cloud project, and then managed to merge all the PRs and create some processes in Google Cloud Platform.
+Student 204084 was in charge of creating train.py, instantiating the model in model.py and connecting everything to wandb. In addition to this they were responsible for the deployment of the model, both backend and frontend, and making sure it was up and running. Further, monitoring using evidently was also deployed by this student. Outside of this, this student was fixing many small bugs in regards to unittesting and created the workflow.yaml file.
