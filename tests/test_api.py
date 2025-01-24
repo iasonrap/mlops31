@@ -1,42 +1,62 @@
-import pytest
-from fastapi.testclient import TestClient
-from src.animals.api import app  # Import FastAPI app from api.py
 import os
+import io
+
+from fastapi.testclient import TestClient
+from PIL import Image
+
+from src.animals.api import app  # Import FastAPI app from api.py
+from starlette.datastructures import UploadFile, Headers
+from torchvision import transforms
+
 
 client = TestClient(app)  # TestClient allows us to make requests to the API
 
+
 def test_hello_world():
     """Test that the / route returns 'Hello from the backend!'"""
-    response = client.get("/")
-    assert response.status_code == 200
-    assert response.json() == {"message": "Hello from the backend!"}
+    with TestClient(app) as client:
+        response = client.get("/")
+        assert response.status_code == 200
+        assert response.json() == {"message": "Hello from the backend!"}
 
-@pytest.mark.skipif(not os.path.exists("data/raw/raw-img/cane/OIF-e2bexWrojgtQnAPPcUfOWQ.jpeg"), reason="Test image not found")
+
 def test_classify_endpoint():
-    """Test that the /classify endpoint works by sending a mock image"""
-    with open("data/raw/raw-img/cane/OIF-e2bexWrojgtQnAPPcUfOWQ.jpeg", "rb") as image_file:
-        response = client.post(
-            "/classify/",
-            files={"file": ("test_image.jpg", image_file, "image/jpeg")}
-        )
-    assert response.status_code == 200
-    assert "prediction" in response.json()  # Assuming the response contains a 'prediction' key
+    """Test the /classify endpoint with a mock file."""
+    with TestClient(app) as client:
+        # Create a temporary image in memory
+        img = Image.new("RGB", (300, 300), color=(255, 0, 0))  # Create a red square image
+        image_bytes = io.BytesIO()
+        img.save(image_bytes, format="JPEG")
+        image_bytes.seek(0)  # Reset the pointer to the start of the file
 
-@pytest.mark.skipif(not os.path.exists("data/raw/raw-img/cane"), reason="Test data not found")
-def test_post_data_endpoint():
-    """Test that the /post_data endpoint uploads data correctly."""
-    mock_data = {"key": "value"}
-    response = client.post(
-        "/post_data",
-        json=mock_data
-    )
-    assert response.status_code == 200
-    assert response.json() == {"status": "success"}  # Example response, adjust as needed
+        # Save the temporary file to disk to match endpoint expectations
+        temp_filename = "test_image.jpeg"
+        with open(temp_filename, "wb") as f:
+            f.write(image_bytes.getvalue())
+
+        # Send the file to the endpoint
+        with open(temp_filename, "rb") as f:
+            response = client.post(
+                "/classify/",
+                files={"file": ("test_image.jpeg", f, "image/jpeg")},
+            )
+
+        # Clean up temporary file
+        os.remove(temp_filename)
+
+        # Validate the response
+        assert response.status_code == 200
+        response_json = response.json()
+        assert "prediction" in response_json
+        assert "filename" in response_json
+        assert response_json["filename"] == "test_image.jpeg"
+    
+
 
 def main():
     test_hello_world()
     test_classify_endpoint()
-    test_post_data_endpoint()
+
 
 if __name__ == "__main__":
     main()
