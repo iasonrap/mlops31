@@ -599,8 +599,8 @@ Creating the Unittests were also not straightforward, as they had to be configur
 > *We have used ChatGPT to help debug our code. Additionally, we used GitHub Copilot to help write some of our code.*
 > Answer:
 
---- question 31 fill here ---
-Student s240056 was in charge about buliding the docker image and therefore extended to make sure the requirements were always in line with the code. Also took the task to do some profiling in the code to ensure efficient code.
+Student s240056 was in charge about building the docker image and therefore extended to make sure the requirements were always in line with the code. Also took the task to do some profiling in the code to ensure efficient code.
 Student s240154 was in charge of data. Downloaded them and then storage to google Bucket, implement the data.py file. Also initialized the git repo and the Google Cloud project, and then managed to merge all the PRs and create some processes in Google Cloud Platform.
 Student 204084 was in charge of creating train.py, instantiating the model in model.py and connecting everything to wandb. In addition to this they were responsible for the deployment of the model, both backend and frontend, and making sure it was up and running. Further, monitoring using evidently was also deployed by this student. Outside of this, this student was fixing many small bugs in regards to unittesting and created the workflow.yaml file.    
 Student s204150 was in charge of api testing locust based load testing, as well as analysis of said testing. Made initial readme, helped out with other parts of the project, filling out this document, and setup wandb.
+The student s240076 was in charge of performing the unit tests, calculating the code coverage and creating the configuration files through Hydra where the hyperparameters for the model and the optimizer were included. He was also in charge of creating the  pre-commit hooks for version control setup and the workflow for continuous integration running on the GitHub repository.
