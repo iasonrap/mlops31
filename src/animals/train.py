@@ -109,7 +109,7 @@ def train(cfg) -> None:
 
             if i % 10 == 0:
                 print(
-                    f"Epoch {epoch+1}/{cfg.hyperparameters.epochs}, Step {i}/{len(train_dataloader)}, Loss: {loss.item()}, Acc: {acc}"
+                    f"Epoch {epoch + 1}/{cfg.hyperparameters.epochs}, Step {i}/{len(train_dataloader)}, Loss: {loss.item()}, Acc: {acc}"
                 )
 
         # Perform eval
@@ -142,7 +142,7 @@ def train(cfg) -> None:
             wandb.log({"val_loss": avg_val_loss, "val_accuracy_epochs": avg_val_acc})
 
         print(
-            f"Epoch {epoch+1}/{cfg.hyperparameters.epochs}, Train Loss: {loss.item()}, Train Acc: {acc:.4f}, "
+            f"Epoch {epoch + 1}/{cfg.hyperparameters.epochs}, Train Loss: {loss.item()}, Train Acc: {acc:.4f}, "
             f"Val Loss: {avg_val_loss:.4f}, Val Acc: {avg_val_acc:.4f}"
         )
 

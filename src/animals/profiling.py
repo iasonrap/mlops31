@@ -1,7 +1,7 @@
 import pstats
 
 # Load the .prof file
-stats = pstats.Stats("profile_results2.prof")
+stats = pstats.Stats("/profiling/profile_results2.prof")
 
 # Sort and print the statistics
 stats.strip_dirs()  # Remove extraneous path information
