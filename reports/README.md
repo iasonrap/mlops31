@@ -151,7 +151,8 @@ We used a requirements.txt file, to manage our most necessary libraries and fram
 $ pip list 
 $ pip freeze > requirements.txt 
 from the conda environment we have created for the project. During the implementation of the project we made sure that each one of use was updating their requirements.txt file and merge them all together at main branch. We ended up having lots of lines that thew weren't required for the project anymore so at the end of the project we used 
-$ deptry . in order to find and discard any libraries or frameworks we do not need to include.  
+$ deptry . in order to find and discard any libraries or frameworks we do not need to include.
+In addition to this, we have enabled dependabot, which should help keep packages used up to date. 
 
 ### Question 5
 
@@ -563,6 +564,8 @@ The starting point of the diagram is our local setup, where we have integrated t
 The google cloud buckets are central to this project as the data to train the model is also hosted there. To download it, one need to just run the data.py file. In addition to the data, the buckets also perform a central role in storing the usage data of the deployed model, which can be used to create a performance report by a cloud function. The reference data to the evidently report, can be created by evaluating the locally stored model weights, which uploads the reference to a cloud bucket.
 
 To update the different parts of our project, one has to do so manually, for example, training the model from the uploaded image needs to be performed manually to update the model weights. After having the model weights updated, the app which pulls the model weights on startup, needs to be reset before it makes use of these. Naturally it would be beneficial, especially as it is not a very large model we are working with, to automate the deployment of the app and the training of the model whenever something is updated (and has passed all the unittests). 
+
+[this figure](figures/project_diagram.png)
 
 ### Question 30
 
