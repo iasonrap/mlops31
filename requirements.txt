@@ -21,3 +21,5 @@ google-cloud-storage
 hydra-core
 uvicorn
 fastapi
+httpx
+locust
