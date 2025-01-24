@@ -213,7 +213,16 @@ s24084, s204150, s240154, s240076, s240056
 >
 > Answer:
 
---- question 7 fill here ---
+In total we have implemented six tests. Three of them are intended for testing the data and the other three for our 
+model.
+
+For the data part, we made sure that the datasets were initialized in the correct way for both the image and the target. 
+We have also included tests that calculate the standard deviation and check that the number of images intended for 
+training, testing and validation datasets are correct.
+
+For the model part, we have checked that the output shape matches the expected one for a batch of images and the same 
+but with a different input size. Finally, we have tested the model with invalid inputs (e.g., incorrect number of 
+channels).
 
 ### Question 8
 
@@ -228,7 +237,14 @@ s24084, s204150, s240154, s240076, s240056
 >
 > Answer:
 
---- question 8 fill here ---
+Currently, 69% of the project's code has been covered. Even reaching coverage levels extremely near to 100% does not 
+ensure that the software is error- or problem-free, even though a higher coverage percentage is preferable. This 
+drawback results from the fact that code coverage quantifies the amount of written code that is executed, but it ignores 
+potential use cases, edge situations, and unforeseen circumstances that might occur in practical application. 
+Furthermore, code coverage alone may not be sufficient to identify some bug types, such as those brought on by external 
+dependencies or integration problems. Therefore, to increase the overall reliability of the product, even though 
+increasing coverage is a worthwhile objective, it should be combined with other quality assurance techniques including 
+rigorous test design, exploratory testing, and strong user acceptance testing.
 
 ### Question 9
 
@@ -243,7 +259,10 @@ s24084, s204150, s240154, s240076, s240056
 >
 > Answer:
 
---- question 9 fill here ---
+To work with version control in our code we have used different branches and pull requests. The tasks were distributed 
+among the different team members for further development. For this, each member had his own branch to do the development 
+and testing if needed. When one or more tasks were completed, a pull request was created to the main branch. After that, 
+the rest of the team members were in charge of bringing the changes from the main branch to their own branch.
 
 ### Question 10
 
@@ -275,7 +294,24 @@ s24084, s204150, s240154, s240076, s240056
 >
 > Answer:
 
---- question 11 fill here ---
+Our continuous integration (CI) setup is organized into a single workflow file designed to ensure comprehensive testing 
+across multiple platforms and Python versions. The workflow, named Unit Tests, is triggered on every push and pull 
+request to the main branch.
+
+We use a matrix strategy to test the code across three operating systems: Ubuntu, Windows, and macOS, with two Python 
+versions: 3.11 and 3.12. This ensures compatibility and robustness of our code across diverse environments.
+
+The workflow is broken into several steps:
+- Checkout Code: The code is pulled using the actions/checkout action.
+- Set Up Python: We configure Python using actions/setup-python, specifying the Python version from the matrix and 
+enabling pip caching. This caching reduces redundant downloads and speeds up the workflow.
+- Install Dependencies: Dependencies are installed from the requirements.txt file, followed by the installation of the 
+project itself. This step also verifies that the dependencies are correctly resolved.
+- Check If Coverage Is Available: Before running the tests, the workflow ensures that coverage and pytest are installed.
+- Run Tests & Coverage: Tests are executed using pytest, with coverage used to measure code coverage. A summary report 
+is then generated to monitor the extent of test coverage.
+
+Here's the link to the workflow file: [CI File](https://github.com/iasonrap/mlops31/blob/main/.github/workflows/tests.yaml)
 
 ## Running code and tracking experiments
 
