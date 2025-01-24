@@ -20,3 +20,6 @@ tqdm~=4.67.1
 google-cloud-storage
 hydra-core
 uvicorn
+fastapi
+httpx
+locust
