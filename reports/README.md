@@ -48,68 +48,68 @@ will check the repositories and the code to verify your answers.
 
 ### Week 1
 
-* [ ] Create a git repository (M5)
-* [ ] Make sure that all team members have write access to the GitHub repository (M5)
-* [ ] Create a dedicated environment for you project to keep track of your packages (M2)
-* [ ] Create the initial file structure using cookiecutter with an appropriate template (M6)
-* [ ] Fill out the `data.py` file such that it downloads whatever data you need and preprocesses it (if necessary) (M6)
-* [ ] Add a model to `model.py` and a training procedure to `train.py` and get that running (M6)
-* [ ] Remember to fill out the `requirements.txt` and `requirements_dev.txt` file with whatever dependencies that you
+* [X] Create a git repository (M5)
+* [X] Make sure that all team members have write access to the GitHub repository (M5)
+* [X] Create a dedicated environment for you project to keep track of your packages (M2)
+* [X] Create the initial file structure using cookiecutter with an appropriate template (M6)
+* [X] Fill out the `data.py` file such that it downloads whatever data you need and preprocesses it (if necessary) (M6)
+* [X] Add a model to `model.py` and a training procedure to `train.py` and get that running (M6)
+* [X] Remember to fill out the `requirements.txt` and `requirements_dev.txt` file with whatever dependencies that you
     are using (M2+M6)
-* [ ] Remember to comply with good coding practices (`pep8`) while doing the project (M7)
-* [ ] Do a bit of code typing and remember to document essential parts of your code (M7)
-* [ ] Setup version control for your data or part of your data (M8)
-* [ ] Add command line interfaces and project commands to your code where it makes sense (M9)
-* [ ] Construct one or multiple docker files for your code (M10)
-* [ ] Build the docker files locally and make sure they work as intended (M10)
-* [ ] Write one or multiple configurations files for your experiments (M11)
-* [ ] Used Hydra to load the configurations and manage your hyperparameters (M11)
-* [ ] Use profiling to optimize your code (M12)
+* [X] Remember to comply with good coding practices (`pep8`) while doing the project (M7)
+* [X] Do a bit of code typing and remember to document essential parts of your code (M7)
+* [X] Setup version control for your data or part of your data (M8)
+* [X] Add command line interfaces and project commands to your code where it makes sense (M9)
+* [X] Construct one or multiple docker files for your code (M10)
+* [X] Build the docker files locally and make sure they work as intended (M10)
+* [X] Write one or multiple configurations files for your experiments (M11)
+* [X] Used Hydra to load the configurations and manage your hyperparameters (M11)
+* [X] Use profiling to optimize your code (M12)
 * [ ] Use logging to log important events in your code (M14)
-* [ ] Use Weights & Biases to log training progress and other important metrics/artifacts in your code (M14)
+* [X] Use Weights & Biases to log training progress and other important metrics/artifacts in your code (M14)
 * [ ] Consider running a hyperparameter optimization sweep (M14)
 * [ ] Use PyTorch-lightning (if applicable) to reduce the amount of boilerplate in your code (M15)
 
 ### Week 2
 
-* [ ] Write unit tests related to the data part of your code (M16)
-* [ ] Write unit tests related to model construction and or model training (M16)
-* [ ] Calculate the code coverage (M16)
-* [ ] Get some continuous integration running on the GitHub repository (M17)
-* [ ] Add caching and multi-os/python/pytorch testing to your continuous integration (M17)
+* [X] Write unit tests related to the data part of your code (M16)
+* [X] Write unit tests related to model construction and or model training (M16)
+* [X] Calculate the code coverage (M16)
+* [X] Get some continuous integration running on the GitHub repository (M17)
+* [X] Add caching and multi-os/python/pytorch testing to your continuous integration (M17)
 * [ ] Add a linting step to your continuous integration (M17)
 * [ ] Add pre-commit hooks to your version control setup (M18)
-* [ ] Add a continues workflow that triggers when data changes (M19)
+* [X] Add a continues workflow that triggers when data changes (M19)
 * [ ] Add a continues workflow that triggers when changes to the model registry is made (M19)
-* [ ] Create a data storage in GCP Bucket for your data and link this with your data version control setup (M21)
-* [ ] Create a trigger workflow for automatically building your docker images (M21)
-* [ ] Get your model training in GCP using either the Engine or Vertex AI (M21)
-* [ ] Create a FastAPI application that can do inference using your model (M22)
-* [ ] Deploy your model in GCP using either Functions or Run as the backend (M23)
-* [ ] Write API tests for your application and setup continues integration for these (M24)
-* [ ] Load test your application (M24)
+* [X] Create a data storage in GCP Bucket for your data and link this with your data version control setup (M21)
+* [X] Create a trigger workflow for automatically building your docker images (M21)
+* [X] Get your model training in GCP using either the Engine or Vertex AI (M21)
+* [X] Create a FastAPI application that can do inference using your model (M22)
+* [X] Deploy your model in GCP using either Functions or Run as the backend (M23)
+* [X] Write API tests for your application and setup continues integration for these (M24)
+* [X] Load test your application (M24)
 * [ ] Create a more specialized ML-deployment API using either ONNX or BentoML, or both (M25)
-* [ ] Create a frontend for your API (M26)
+* [X] Create a frontend for your API (M26)
 
 ### Week 3
 
 * [ ] Check how robust your model is towards data drifting (M27)
 * [ ] Deploy to the cloud a drift detection API (M27)
-* [ ] Instrument your API with a couple of system metrics (M28)
-* [ ] Setup cloud monitoring of your instrumented application (M28)
+* [X] Instrument your API with a couple of system metrics (M28)
+* [X] Setup cloud monitoring of your instrumented application (M28)
 * [ ] Create one or more alert systems in GCP to alert you if your app is not behaving correctly (M28)
 * [ ] If applicable, optimize the performance of your data loading using distributed data loading (M29)
 * [ ] If applicable, optimize the performance of your training pipeline by using distributed training (M30)
-* [ ] Play around with quantization, compilation and pruning for you trained models to increase inference speed (M31)
+* [X] Play around with quantization, compilation and pruning for you trained models to increase inference speed (M31)
 
 ### Extra
 
 * [ ] Write some documentation for your application (M32)
 * [ ] Publish the documentation to GitHub Pages (M32)
-* [ ] Revisit your initial project description. Did the project turn out as you wanted?
+* [X] Revisit your initial project description. Did the project turn out as you wanted?
 * [ ] Create an architectural diagram over your MLOps pipeline
-* [ ] Make sure all group members have an understanding about all parts of the project
-* [ ] Uploaded all your code to GitHub
+* [X] Make sure all group members have an understanding about all parts of the project
+* [X] Uploaded all your code to GitHub
 
 ## Group information
 
@@ -123,10 +123,6 @@ Group 31
 ### Question 2
 > **Enter the study number for each member in the group**
 >
-> Example:
->
-> *sXXXXXX, sXXXXXX, sXXXXXX*
->
 > Answer:
 
 s24084, s204150, s240154, s240076, s240056
@@ -135,15 +131,9 @@ s24084, s204150, s240154, s240076, s240056
 > **A requirement to the project is that you include a third-party package not covered in the course. What framework**
 > **did you choose to work with and did it help you complete the project?**
 >
-> Recommended answer length: 100-200 words.
->
-> Example:
-> *We used the third-party framework ... in our project. We used functionality ... and functionality ... from the*
-> *package to do ... and ... in our project*.
->
 > Answer:
 
---- question 3 fill here ---
+We used the third-party frameworks TIMM, sci-kit learn in our project. We used functionality train_test_split from modelselection, metrics from sklearn to split effectively the data for training and testing, and implement some metrics in our project. We used TIMM to effectively load in rest-net model and to open the possibility of using other models as well, with ease and to finetune these for our use case. The TIMM framework made it very easy to implement large CNN models as they have much and these can often perform much better than home made models. We ended up choosing RestNet 18 as it's struck a good balance between performance and inference speed according to TIMM's model list. Naturally another model selection could be better in terms of maybe both accuracy and inference, although this would be further investigation of models which was not the goal of this project. 
 
 ## Coding environment
 
@@ -155,15 +145,13 @@ s24084, s204150, s240154, s240076, s240056
 > **Explain how you managed dependencies in your project? Explain the process a new team member would have to go**
 > **through to get an exact copy of your environment.**
 >
-> Recommended answer length: 100-200 words
->
-> Example:
-> *We used ... for managing our dependencies. The list of dependencies was auto-generated using ... . To get a*
-> *complete copy of our development environment, one would have to run the following commands*
->
 > Answer:
 
---- question 4 fill here ---
+We used a requirements.txt file, to manage our most necessary libraries and frameworks. At the start we initialized that with 
+$ pip list 
+$ pip freeze > requirements.txt 
+from the conda environment we have created for the project. During the implementation of the project we made sure that each one of use was updating their requirements.txt file and merge them all together at main branch. We ended up having lots of lines that thew weren't required for the project anymore so at the end of the project we used 
+$ deptry . in order to find and discard any libraries or frameworks we do not need to include.  
 
 ### Question 5
 
@@ -172,14 +160,10 @@ s24084, s204150, s240154, s240076, s240056
 >
 > Recommended answer length: 100-200 words
 >
-> Example:
-> *From the cookiecutter template we have filled out the ... , ... and ... folder. We have removed the ... folder*
-> *because we did not use any ... in our project. We have added an ... folder that contains ... for running our*
-> *experiments.*
->
 > Answer:
 
---- question 5 fill here ---
+From the cookiecutter template we have filled out the data, src and tests folder. We have removed the notebooks folder because we did not use any notebook files in our project and also the file src/animals/visualize.py because we did not implement any visual out of our model . Finally we have removed folder configs because we used another subfolder inside src to host the config files required. We have added a cloudbuild_files folder that contains the cloud files and a folder named profiling in order to keep all the files about profiling. The cookie cutter template helped kickstart the project and managed files consistently across all members of the group.
+
 
 ### Question 6
 
@@ -188,13 +172,9 @@ s24084, s204150, s240154, s240076, s240056
 >
 > Recommended answer length: 100-200 words.
 >
-> Example:
-> *We used ... for linting and ... for formatting. We also used ... for typing and ... for documentation. These*
-> *concepts are important in larger projects because ... . For example, typing ...*
->
 > Answer:
 
---- question 6 fill here ---
+We only set one check in Github Actions for ruff which seems to consistently fail even when the code has been checked, but at least notify us of potential issues in the code formating. We do understand how important these practices are, especially in bigger projects. Keeping code clean and consistent makes it easier to read and work with, and it helps avoid mistakes or confusion between team members. While we mostly agreed informally on how to keep things consistent, following proper coding standards would have made things more organized. Typing and documentation are also really important in larger projects because they help explain the code and prevent errors early on. Typing catches issues while writing the code, and documentation helps everyone understand how things work, both for current team members and anyone joining later.
 
 ## Version control
 
@@ -207,14 +187,10 @@ s24084, s204150, s240154, s240076, s240056
 >
 > Recommended answer length: 50-100 words.
 >
-> Example:
-> *In total we have implemented X tests. Primarily we are testing ... and ... as these the most critical parts of our*
-> *application but also ... .*
->
 > Answer:
 
-In total we have implemented six tests. Three of them are intended for testing the data and the other three for our 
-model.
+In total we have implemented nine tests. Three of them are intended for testing the data, three for our 
+model and the other three for our API backend.
 
 For the data part, we made sure that the datasets were initialized in the correct way for both the image and the target. 
 We have also included tests that calculate the standard deviation and check that the number of images intended for 
@@ -223,6 +199,8 @@ training, testing and validation datasets are correct.
 For the model part, we have checked that the output shape matches the expected one for a batch of images and the same 
 but with a different input size. Finally, we have tested the model with invalid inputs (e.g., incorrect number of 
 channels).
+
+For the API part, we are checking if the backend can be contacted, if it can classify pictures and if it has connection to the cloud bucket.
 
 ### Question 8
 
@@ -253,10 +231,6 @@ rigorous test design, exploratory testing, and strong user acceptance testing.
 >
 > Recommended answer length: 100-200 words.
 >
-> Example:
-> *We made use of both branches and PRs in our project. In our group, each member had an branch that they worked on in*
-> *addition to the main branch. To merge code we ...*
->
 > Answer:
 
 To work with version control in our code we have used different branches and pull requests. The tasks were distributed 
@@ -271,13 +245,9 @@ the rest of the team members were in charge of bringing the changes from the mai
 >
 > Recommended answer length: 100-200 words.
 >
-> Example:
-> *We did make use of DVC in the following way: ... . In the end it helped us in ... for controlling ... part of our*
-> *pipeline*
->
 > Answer:
 
---- question 10 fill here ---
+We did use DVC to track any changes in the dataset, although we did not update the dataset during our implementation. However, there is a significant advantage to using data version control in a project. It allows teams to keep track of changes made to the dataset over time, ensuring that any modifications, additions, or deletions are recorded and can be easily reverted if needed. This is particularly useful in collaborative projects where multiple team members may work with the same data.
 
 ### Question 11
 
@@ -286,11 +256,6 @@ the rest of the team members were in charge of bringing the changes from the mai
 > **to insert a link to one of your GitHub actions workflow.**
 >
 > Recommended answer length: 200-300 words.
->
-> Example:
-> *We have organized our continuous integration into 3 separate files: one for doing ..., one for running ... testing*
-> *and one for running ... . In particular for our ..., we used ... .An example of a triggered workflow can be seen*
-> *here: <weblink>*
 >
 > Answer:
 
@@ -325,12 +290,9 @@ Here's the link to the workflow file: [CI File](https://github.com/iasonrap/mlop
 >
 > Recommended answer length: 50-100 words.
 >
-> Example:
-> *We used a simple argparser, that worked in the following way: Python  my_script.py --lr 1e-3 --batch_size 25*
->
 > Answer:
 
---- question 12 fill here ---
+We used hydra to organize our config file which contains all the hyperparameters for our model and its optimizers, which makes it easy for anyone to replicate our results as they do not have to dig in our code to find this information. To run an experiment in our case we would do $ invoke train after changing the configuration file.
 
 ### Question 13
 
@@ -345,7 +307,7 @@ Here's the link to the workflow file: [CI File](https://github.com/iasonrap/mlop
 >
 > Answer:
 
---- question 13 fill here ---
+We set a seed at the start of each model train and we split the data with a seed as well, which should ensure that every run with the same configuration file should produce the same results. Outside of this, we have made use of docker images which are always a direct replication of our repository such a docker image is created whenever we change main branch of our repository. When we run an experiment, we train the model according to the configuration file and save the model weights locally, to wandb and to a cloud bucket, which can be used by the API.
 
 ### Question 14
 
@@ -356,13 +318,9 @@ Here's the link to the workflow file: [CI File](https://github.com/iasonrap/mlop
 >
 > Recommended answer length: 200-300 words + 1 to 3 screenshots.
 >
-> Example:
-> *As seen in the first image when have tracked ... and ... which both inform us about ... in our experiments.*
-> *As seen in the second image we are also tracking ... and ...*
->
 > Answer:
-![WANDB](wandb.png)
-![WANDB2](wandb2.png)
+![WANDB](figures/wandb.png)
+![WANDB2](figures/wandb2.png)
 WANDB was used to keep track whenever there would be changed to the model, to see how it would impact our validation accuracy and therefore model versioning as well to keep an optimal model and tracking what has already been tried to no waste more time in it. WANDB fortunately has a great visualization of the different validation accuracies but also a great insight into the resources used for each of the models.
 
 ### Question 15
@@ -378,7 +336,11 @@ WANDB was used to keep track whenever there would be changed to the model, to se
 >
 > Answer:
 
-Docker was used as the preferred way to train our model and ensure anything that worked for someone would work for others. 
+Docker was used as the preferred way to train our model and ensure anything that worked for someone would work for others. We uploaded docker images to the Artifact registry of Google Cloud Platfrom, which massively simplified the launch of the front and backed of our app. We have the train image build automatically, however the API needs to be build manually and the train image has to be used by vertex AI manually as well. To run 
+$ docker pull europe-west1-docker.pkg.dev/mlops31/animals-artifacts/frontend:latest
+$ docker pull europe-west1-docker.pkg.dev/mlops31/animals-artifacts/animals_classification:latest
+$ docker run
+$ docker run
 
 ### Question 16
 
@@ -386,10 +348,6 @@ Docker was used as the preferred way to train our model and ensure anything that
 > **try to profile your code or do you think it is already perfect?**
 >
 > Recommended answer length: 100-200 words.
->
-> Example:
-> *Debugging method was dependent on group member. Some just used ... and others used ... . We did a single profiling*
-> *run of our main code at some point that showed ...*
 >
 > Answer:
 
