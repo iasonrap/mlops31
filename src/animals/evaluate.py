@@ -1,3 +1,4 @@
+import requests
 import time
 from pathlib import Path
 
@@ -68,6 +69,27 @@ def evaluate(cfg, model_checkpoint: str) -> None:
     stop_time = time.time()
     print(f"Time taken: {stop_time - start_time}")
     print(f"Accuracy: {correct / total}")
+
+    bucket_name = "gcp_monitoring_animals"
+    object_name = "evaluation_results.csv"
+    file_path = "reports/evaluation_results.csv"
+
+    # Construct the URL for the GCS object
+    url = f"https://storage.googleapis.com/{bucket_name}/reference/{object_name}"
+
+    # Open the file and upload it
+    with open(file_path, "rb") as file_data:
+        headers = {
+            "Content-Type": "text/csv",  # Ensure the correct content type
+        }
+        response = requests.put(url, data=file_data, headers=headers)
+
+    # Check the response
+    if response.status_code == 200:
+        print("File uploaded successfully.")
+    else:
+        print(f"Failed to upload file. Status code: {response.status_code}")
+        print("Response:", response.text)
 
 
 # Initialize Typer app
