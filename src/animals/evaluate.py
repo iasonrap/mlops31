@@ -1,8 +1,8 @@
-import requests
 import time
 from pathlib import Path
 
 import pandas as pd
+import requests
 import torch
 import typer
 from hydra import compose, initialize
