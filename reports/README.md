@@ -365,12 +365,12 @@ our results have been logged under profile_results.prof
 >
 > Recommended answer length: 50-200 words.
 >
-> Example:
-> *We used the following two services: Engine and Bucket. Engine is used for... and Bucket is used for...*
->
 > Answer:
 
---- question 17 fill here ---
+We used 
+-Bucket to store our data and track the changes with DVC.
+-Artifact Registry to store and manage our Docker container images.
+-Cloud Build to trigger a Docker image build on Main Branch push.
 
 ### Question 18
 
@@ -394,7 +394,7 @@ our results have been logged under profile_results.prof
 >
 > Answer:
 
---- question 19 fill here ---
+[Bucket](figures/bucket.png)
 
 ### Question 20
 
@@ -403,7 +403,7 @@ our results have been logged under profile_results.prof
 >
 > Answer:
 
---- question 20 fill here ---
+[Artifact Registry](figures/registry.png)
 
 ### Question 21
 
@@ -412,7 +412,7 @@ our results have been logged under profile_results.prof
 >
 > Answer:
 
---- question 21 fill here ---
+[Build History](figures/build.png)
 
 ### Question 22
 
@@ -509,7 +509,7 @@ our results have been logged under profile_results.prof
 >
 > Answer:
 
---- question 27 fill here ---
+Member s240154 used 2.60$ credits, 
 
 ### Question 28
 
@@ -575,5 +575,5 @@ There were quite some issues with the requirements.txt, lots of libraries being 
 > Answer:
 
 --- question 31 fill here ---
-Student s240056 was in charge about buliding the docker image and therefore extended to make sure the requirements were always in line with the code. Also took the task to do some profiling in the code to ensure
-efficient code.
+Student s240056 was in charge about buliding the docker image and therefore extended to make sure the requirements were always in line with the code. Also took the task to do some profiling in the code to ensure efficient code.
+Student s240154 was in charge of data. Downloaded them and then storage to google Bucket, implement the data.py file. Also initialized the git repo and the Google Cloud project, and then managed to merge all the PRs and create some processes in Google Cloud Platform.
