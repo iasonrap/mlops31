@@ -275,10 +275,10 @@ project itself. This step also verifies that the dependencies are correctly reso
 - Run Tests & Coverage: Tests are executed using pytest, with coverage used to measure code coverage. A summary report 
 is then generated to monitor the extent of test coverage.
 
-Here's the link to the workflow file: [CI File](https://github.com/iasonrap/mlops31/blob/main/.github/workflows/tests.yaml)
+Here's the link to the workflow file: [CI File](https://github.com/iasonrap/mlops31.github/workflows/tests.yaml)
 
 The Ruff Tests follow the same workflow except, here we just pip install ruff and do ruff check . and ruff format .
-This workflow file can be found in the same folder at: [CI File](https://github.com/iasonrap/mlops31/blob/main/.github/workflows/codecheck.yaml)
+This workflow file can be found in the same folder at: [CI File](https://github.com/iasonrap/mlops31.github/workflows/codecheck.yaml)
 
 ## Running code and tracking experiments
 
@@ -338,7 +338,7 @@ WANDB was used to keep track whenever there would be changed to the model, to se
 >
 > Answer:
 
-Docker was used as the preferred way to train our model and ensure anything that worked for someone would work for others. We uploaded docker images to the Artifact registry of Google Cloud Platfrom, which massively simplified the launch of the front and backed of our app. We have the train image build automatically, however the API needs to be build manually and the train image has to be used by vertex AI manually as well. To run 
+Docker was used as the preferred way to train our model and ensure anything that worked for someone would work for others. We uploaded docker images to the Artifact registry of Google Cloud Platfrom, which massively simplified the launch of the front and backed of our app. We have the train image build automatically, however the API needs to be build manually and the train image has to be used by vertex AI manually as well. An example of a dockerfile can be seen in [CI File](https://github.com/iasonrap/mlops31/dockerfiles/train.dockerfile). Pulling from the image registry is done by 
 $ docker pull europe-west1-docker.pkg.dev/mlops31/animals-artifacts/frontend:latest
 $ docker pull europe-west1-docker.pkg.dev/mlops31/animals-artifacts/animals_classification:latest
 
