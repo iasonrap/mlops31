@@ -1,16 +1,12 @@
-import os
 import io
+import os
 
 from fastapi.testclient import TestClient
 from PIL import Image
 
 from src.animals.api import app  # Import FastAPI app from api.py
-from starlette.datastructures import UploadFile, Headers
-from torchvision import transforms
-
 
 client = TestClient(app)  # TestClient allows us to make requests to the API
-
 
 
 def test_hello_world():
@@ -51,8 +47,6 @@ def test_classify_endpoint():
         assert "prediction" in response_json
         assert "filename" in response_json
         assert response_json["filename"] == "test_image.jpeg"
-    
-
 
 
 def main():
