@@ -246,7 +246,7 @@ the rest of the team members were in charge of bringing the changes from the mai
 >
 > Answer:
 
-We did use DVC to track any changes in the dataset, although we did not update the dataset during our implementation. However, there is a significant advantage to using data version control in a project. It allows teams to keep track of changes made to the dataset over time, ensuring that any modifications, additions, or deletions are recorded and can be easily reverted if needed. This is particularly useful in collaborative projects where multiple team members may work with the same data.
+We did use DVC to track any changes in the dataset, although we did not update the dataset during our implementation. However, there is a significant advantage to using data version control in a project. It allows teams to keep track of changes made to the dataset over time, ensuring that any modifications, additions, or deletions are recorded and can be easily reverted if needed. This is particularly useful in collaborative projects where multiple team members may work with the same data. In this project however, the data was not updated at all, as we just used a stable dataset from Kaggle.
 
 ### Question 11
 
@@ -323,7 +323,7 @@ We set a seed at the start of each model train and we split the data with a seed
 > Answer:
 ![WANDB](figures/wandb.png)
 ![WANDB2](figures/wandb2.png)
-WANDB was used to keep track whenever there would be changed to the model, to see how it would impact our validation accuracy and therefore model versioning as well to keep an optimal model and tracking what has already been tried to no waste more time in it. WANDB fortunately has a great visualization of the different validation accuracies but also a great insight into the resources used for each of the models. We did not spend that long on making the visualizations pretty, but we have metrics regarding the model's train and validation data throughout the training epochs, to avoid issues such as overfitting. While we did not do it, performing a parameter sweep could have been beneficial to increase the model accuracy - we did consider trying smaller models as well to increase inference speed.
+WANDB was used to keep track whenever there would be changed to the model, to see how it would impact our validation accuracy and therefore model versioning as well to keep an optimal model and tracking what has already been tried to no waste more time in it. WANDB fortunately has a great visualization of the different validation accuracies but also a great insight into the resources used for each of the models. We did not spend that long on making the visualizations pretty, but we have metrics regarding the model's train and validation data throughout the training epochs, to avoid issues such as overfitting. When saving the model as an artifact to wandb, we make sure to also log its f1 and accuracy using the sklearn.metric framework. While we did not do it, performing a parameter sweep could have been beneficial to increase the model accuracy - we did consider trying smaller models as well to increase inference speed.
 
 ### Question 15
 
@@ -359,7 +359,7 @@ $ docker run europe-west1-docker.pkg.dev/mlops31/animals-artifacts/animal_train_
 > Answer:
 
 The main way to debug, especially in code was to look at the error messages and narrow down the place the error took place. After that understanding what could have gone wrong, especially considering latest changes done by you or if a pull request was done, what that could have changed. Logging messages properly could have helped with this, and would also help other users of the repository, such that they only get the logs they ask for (using logging levels). Outside of prints statements, we naturally also used Python's debugger tool, with breakpoints to narrow down where issues arise, and how to fix them interactively.
- We did do profiling for train.py and there was nothing major to fix besides the training takes too long for minimum improvements, our results have been logged under profile_results.prof - An improvement could be to preprocess all data instead of processing it during training. 
+We did do profiling for train.py and there was nothing major to fix besides the training takes too long for minimum improvements, our results have been logged under profile_results.prof - An improvement could be to preprocess all data instead of processing it during training. 
 
 ## Working in the cloud
 
