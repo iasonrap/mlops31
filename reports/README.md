@@ -275,10 +275,10 @@ project itself. This step also verifies that the dependencies are correctly reso
 - Run Tests & Coverage: Tests are executed using pytest, with coverage used to measure code coverage. A summary report 
 is then generated to monitor the extent of test coverage.
 
-Here's the link to the workflow file: [CI File](https://github.com/iasonrap/mlops31.github/workflows/tests.yaml)
+Here's the link to the workflow file: [CI File](https://github.com/iasonrap/mlops31/.github/workflows/tests.yaml)
 
 The Ruff Tests follow the same workflow except, here we just pip install ruff and do ruff check . and ruff format .
-This workflow file can be found in the same folder at: [CI File](https://github.com/iasonrap/mlops31.github/workflows/codecheck.yaml)
+This workflow file can be found in the same folder at: [CI File](https://github.com/iasonrap/mlops31/.github/workflows/codecheck.yaml)
 
 ## Running code and tracking experiments
 
