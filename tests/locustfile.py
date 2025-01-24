@@ -1,5 +1,7 @@
 import os
-from locust import HttpUser, task, between
+
+from locust import HttpUser, between, task
+
 
 class FastAPIUser(HttpUser):
     wait_time = between(1, 3)
@@ -12,8 +14,5 @@ class FastAPIUser(HttpUser):
 
     @task
     def post_data(self):
-        data_payload = {
-            "x": "dog",
-            "probabilities": [0.1, 0.2, 0.3, 0.05, 0.1, 0.15, 0.1, 0.05, 0.02, 0.03]
-        }
+        data_payload = {"x": "dog", "probabilities": [0.1, 0.2, 0.3, 0.05, 0.1, 0.15, 0.1, 0.05, 0.02, 0.03]}
         self.client.post(f"{self.base_url}/post_data", json=data_payload)

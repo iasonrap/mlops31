@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - joel
   pull_request:
     branches:
       - main
@@ -18,7 +17,7 @@ jobs:
         operating-system: ["ubuntu-latest", "windows-latest", "macos-latest"]
         python-version: ["3.12", "3.11"]
 
-   steps:
+    steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -29,15 +28,15 @@ jobs:
           cache: 'pip'
           cache-dependency-path: setup.py
     
-    - name: Install dependencies
-      run: |
-        pip install ruff
-        pip list
+      - name: Install dependencies
+        run: |
+          pip install ruff
+          pip list
 
-    - name: Ruff check
-      run: |
-        ruff check .
-        
-    - name: Ruff format
-      run: |
-        ruff format .
+      - name: Ruff check
+        run: |
+          ruff check .
+          
+      - name: Ruff format
+        run: |
+          ruff format .
