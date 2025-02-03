@@ -7,7 +7,7 @@ invoke==2.2.0
 mkdocs==1.5.3
 
 # docs
-mkdocs-material==9.4.6
+mkdocs-material==9.6.1
 mkdocstrings-python==1.12.2
 
 # pre-commit
